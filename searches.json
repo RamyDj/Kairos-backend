@@ -1,0 +1,127 @@
+[
+    {
+      "activity": "coiffeur",
+      "area": "Paris",
+      "date": "2024-07-01",
+      "current_compagnies": {
+        "status": "Active",
+        "creation_date": "2015-03-15",
+        "employees": 5,
+        "coordinates": {
+          "Lon": "2.3522",
+          "Lat": "48.8566"
+        }
+      },
+      "compagnies_per_year": {
+        "year": 2024,
+        "compagnies": 25
+      },
+      "top_status": {
+        "status_number": 1,
+        "percentage": 80.0,
+        "quaterly_one": 5,
+        "quaterly_two": 7,
+        "quaterly_three": 8
+      }
+    },
+    {
+      "activity": "coiffeur",
+      "area": "Lyon",
+      "date": "2024-06-20",
+      "current_compagnies": {
+        "status": "Active",
+        "creation_date": "2010-10-22",
+        "employees": 3,
+        "coordinates": {
+          "Lon": "4.8357",
+          "Lat": "45.7640"
+        }
+      },
+      "compagnies_per_year": {
+        "year": 2022,
+        "compagnies": 20
+      },
+      "top_status": {
+        "status_number": 2,
+        "percentage": 70.5,
+        "quaterly_one": 4,
+        "quaterly_two": 5,
+        "quaterly_three": 6
+      }
+    },
+    {
+      "activity": "coiffeur",
+      "area": "Marseille",
+      "date": "2024-07-15",
+      "current_compagnies": {
+        "status": "Inactive",
+        "creation_date": "2012-07-30",
+        "employees": 4,
+        "coordinates": {
+          "Lon": "5.3698",
+          "Lat": "43.2965"
+        }
+      },
+      "compagnies_per_year": {
+        "year": 2021,
+        "compagnies": 15
+      },
+      "top_status": {
+        "status_number": 3,
+        "percentage": 60.0,
+        "quaterly_one": 2,
+        "quaterly_two": 4,
+        "quaterly_three": 4
+      }
+    },
+    {
+      "activity": "coiffeur",
+      "area": "Nice",
+      "date": "2024-08-01",
+      "current_compagnies": {
+        "status": "Active",
+        "creation_date": "2018-11-15",
+        "employees": 6,
+        "coordinates": {
+          "Lon": "7.2620",
+          "Lat": "43.7102"
+        }
+      },
+      "compagnies_per_year": {
+        "year": 2024,
+        "compagnies": 18
+      },
+      "top_status": {
+        "status_number": 1,
+        "percentage": 75.5,
+        "quaterly_one": 6,
+        "quaterly_two": 6,
+        "quaterly_three": 6
+      }
+    },
+    {
+      "activity": "coiffeur",
+      "area": "Toulouse",
+      "date": "2024-07-25",
+      "current_compagnies": {
+        "status": "Active",
+        "creation_date": "2016-03-18",
+        "employees": 4,
+        "coordinates": {
+          "Lon": "1.4442",
+          "Lat": "43.6047"
+        }
+      },
+      "compagnies_per_year": {
+        "year": 2022,
+        "compagnies": 12
+      },
+      "top_status": {
+        "status_number": 2,
+        "percentage": 65.0,
+        "quaterly_one": 3,
+        "quaterly_two": 4,
+        "quaterly_three": 5
+      }
+    }
+  ]
