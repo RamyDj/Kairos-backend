@@ -16,7 +16,7 @@ router.post('/signup', (req, res) => {
   }
 
   // Check if the user has not already been registered
-  User.findOne({ username: req.body.email }).then(data => {
+  User.findOne({ email: req.body.email }).then(data => {
     if (data === null) {
       const token = uid2(32);
       const hash = bcrypt.hashSync(req.body.password, 1);
