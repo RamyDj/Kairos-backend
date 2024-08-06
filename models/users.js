@@ -8,7 +8,7 @@ const userSchema = mongoose.Schema({
   skills: [String],
   last_connection: Date,
   searches: [{type: mongoose.Schema.Types.ObjectId, ref: 'searches'}],
-  
+  verified: Boolean,
 });
 
 const User = mongoose.model('users', userSchema);
