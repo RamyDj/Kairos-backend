@@ -10,6 +10,9 @@ require('../models/connection');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
 
+const ourEmail = process.env.EMAIL;
+const ourPassword = process.env.EMAIL_PASSWORD
+
 const EMAIL_SECRET = 'asdf1093KMnzxcvnkljvasdu09123nlasdasdf';
 
 /* router.get('/mail', (req, res) => {
@@ -79,8 +82,8 @@ router.post('/signup', (req, res) => {
         port: 465,
         secure: true,
         auth: {
-          user: "agent.smiles.ss@gmail.com",
-          pass: "fgulzynygqxfsmng",
+          user: ourEmail,
+          pass: ourPassword,
         },
       });
 
