@@ -230,17 +230,6 @@ router.post('/signin', (req, res) => {
 
 });
 
-
-
-
-
-
-
-
-
-
-
-
 // ROUTE DELETE USER ACCOUNT
 router.delete('/', (req, res) => {
   User.deleteOne({email: req.body.email})
