@@ -60,11 +60,16 @@ const toWGS = (x, y) => {
     return searchedElement[0].description
   }
 
+  function convertStringApeToCode(string){
+    const searchedElement = codesApe.filter(e=>e.description == string)
+    return searchedElement[0].code
+  }
+
   function convertInPreviousYear (year, soustraction){
     numbersToChange = Number(year)
     numbersToChange-=soustraction
-    numbersToChange = numbersToChange.toString()
-    return numbersToChange
+    const designation = numbersToChange.toString()
+    return designation
   }
 
-  module.exports = {toWGS, convertCodeStatusToString, convertStatusStringToCode, convertCodeEmployeesToString, convertCodeApeToString, convertInPreviousYear}
+  module.exports = {toWGS, convertCodeStatusToString, convertStatusStringToCode, convertCodeEmployeesToString, convertCodeApeToString, convertInPreviousYear, convertStringApeToCode}

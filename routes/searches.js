@@ -1,13 +1,17 @@
 var express = require('express');
 var router = express.Router();
 
+const Search = require('../models/searches')
+
 const {toWGS, convertCodeStatusToString, convertCodeEmployeesToString, convertCodeApeToString, convertInPreviousYear, convertStatusStringToCode} = require('../modules/convertingFunctions')
 
 const moment = require('moment')
 
-const apiKey = '6dd2da48-28ec-3dd8-9f7f-1f2e424bd8c8'
+const apiKey = process.env.SIRENE_API_KEY
 
-router.get('/newResearch/:city/:nafCode', (req, res)=>{
+
+
+router.get('/newSearch/:city/:nafCode', (req, res)=>{
 
   const city = req.params.city
   const nafCode = req.params.nafCode
@@ -139,13 +143,19 @@ router.get('/newResearch/:city/:nafCode', (req, res)=>{
       return allStatusCompanies.length
     }
 
-    // Création des sous-documents detail_top_status
+    // Création des sous-documents detail_top_status si trois statuts différents trouvés dans la recherche
+
+    // let detail_top_status
+
+    // if (sortedStatusAppearences.length === 3){
+
+    // }
 
     const detail_top_status=[
       { status_number : 1,
         status_name : sortedStatusAppearences[0].status,
         percentage : Math.round((sortedStatusAppearences[0].companiesNumber/totalCountOfCompanies)*100),
-        compagnies_per_year :[
+        companies_per_year :[
           {actual_year : yearForSearches, number : sortedStatusAppearences[0].companiesNumber},
           {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
             number : getCompaniesNumber(sortedStatusAppearences[0].status, convertInPreviousYear(yearForSearches, 1))
@@ -158,7 +168,7 @@ router.get('/newResearch/:city/:nafCode', (req, res)=>{
       { status_number : 2,
         status_name : sortedStatusAppearences[1].status,
         percentage : Math.round((sortedStatusAppearences[1].companiesNumber/totalCountOfCompanies)*100),
-        compagnies_per_year :[
+        companies_per_year :[
           {actual_year : yearForSearches, number : sortedStatusAppearences[1].companiesNumber},
           {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
             number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 1))
@@ -171,7 +181,7 @@ router.get('/newResearch/:city/:nafCode', (req, res)=>{
       { status_number : 3,
         status_name : sortedStatusAppearences[2].status,
         percentage : Math.round((sortedStatusAppearences[2].companiesNumber/totalCountOfCompanies)*100),
-        compagnies_per_year :[
+        companies_per_year :[
           {actual_year : yearForSearches, number : sortedStatusAppearences[2].companiesNumber},
           {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
             number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 1))
@@ -186,17 +196,27 @@ router.get('/newResearch/:city/:nafCode', (req, res)=>{
     // Conversion du code naf en String de sa description
 
     const activity = convertCodeApeToString(nafCode)
+    // const newSearch = {
+    //   activity,
+    //   area : city,
+    //   date,
+    //   current_companies,
+    //   top_status : detail_top_status,
+    //   score : Math.floor(Math.random()*101),
+    // }
 
-    const newSearches = {
+    // res.json({result : newSearch})
+
+    const newSearch = new Search({
       activity,
       area : city,
       date,
       current_companies,
       top_status : detail_top_status,
       score : Math.floor(Math.random()*101),
-    }
+    })
 
-    res.json({result : newSearches})
+    newSearch.save().then(data=>res.json({result:data}))
   })
 
 })
