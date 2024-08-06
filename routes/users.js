@@ -2,7 +2,7 @@ var express = require('express');
 var router = express.Router();
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
-
+const passport = require('../config/auth');
 require('../models/connection');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
@@ -59,5 +59,16 @@ router.post('/signin', (req, res) => {
     }
   });
 });
+
+
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:3001/' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('http://localhost:3001/');
+  });
 
 module.exports = router;
