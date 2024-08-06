@@ -228,4 +228,29 @@ router.post('/signin', (req, res) => {
   });
 });
 
+// ROUTE DELETE USER ACCOUNT
+router.delete('/', (req, res) => {
+  User.deleteOne({email: req.body.email})
+  .then((data) => {
+    data.deletedCount > 0 ? res.json({result: true}) : res.json({result: false, error: 'User not found'})
+  })
+})
+
+// ROUTE CHANGE PASSWORD
+router.put('/password', (req, res) => {
+  User.findOne({email: req.body.email})
+  .then(data => {
+    if (data && bcrypt.compareSync(req.body.oldPassword, data.password)) {
+      const hash = bcrypt.hashSync(req.body.newPassword, 1);
+      User.updateOne({email: req.body.email}, {password: hash})
+      .then(() => {
+        res.json({result: true})
+      })
+    }
+    else {
+      res.json({result: false, error: 'Could not verify user'})
+    }
+  })
+})
+
 module.exports = router;
