@@ -2,6 +2,7 @@ var express = require('express');
 var router = express.Router();
 const uid2 = require('uid2');
 const bcrypt = require('bcrypt');
+const passport = require('../config/auth');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
@@ -9,6 +10,9 @@ const jwt = require('jsonwebtoken');
 require('../models/connection');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
+
+const ourEmail = process.env.EMAIL;
+const ourPassword = process.env.EMAIL_PASSWORD
 
 const EMAIL_SECRET = 'asdf1093KMnzxcvnkljvasdu09123nlasdasdf';
 
@@ -79,8 +83,8 @@ router.post('/signup', (req, res) => {
         port: 465,
         secure: true,
         auth: {
-          user: "agent.smiles.ss@gmail.com",
-          pass: "fgulzynygqxfsmng",
+          user: ourEmail,
+          pass: ourPassword,
         },
       });
 
@@ -223,6 +227,42 @@ router.post('/signin', (req, res) => {
       res.json({ result: false, error: 'User not found' });
     }
   });
+
 });
+
+// ROUTE DELETE USER ACCOUNT
+router.delete('/', (req, res) => {
+  User.deleteOne({email: req.body.email})
+  .then((data) => {
+    data.deletedCount > 0 ? res.json({result: true}) : res.json({result: false, error: 'User not found'})
+  })
+})
+
+// ROUTE CHANGE PASSWORD
+router.put('/password', (req, res) => {
+  User.findOne({email: req.body.email})
+  .then(data => {
+    if (data && bcrypt.compareSync(req.body.oldPassword, data.password)) {
+      const hash = bcrypt.hashSync(req.body.newPassword, 1);
+      User.updateOne({email: req.body.email}, {password: hash})
+      .then(() => {
+        res.json({result: true})
+      })
+    }
+    else {
+      res.json({result: false, error: 'Could not verify user'})
+    }
+  })
+})
+
+router.get('/auth/google',
+  passport.authenticate('google', { scope: ['profile', 'email'] }));
+
+router.get('/auth/google/callback', 
+  passport.authenticate('google', { failureRedirect: 'http://localhost:3001/' }),
+  function(req, res) {
+    // Successful authentication, redirect home.
+    res.redirect('http://localhost:3001/dashboard');
+  });
 
 module.exports = router;
