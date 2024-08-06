@@ -28,7 +28,6 @@ const detail_top_statusSchema = mongoose.Schema({
 const searchSchema = mongoose.Schema({
   activity: String,
   area: String,
-  email: String,
   date: Date,
   current_compagnies: current_compagniesSchema,
   compagnies_per_year: compagniesSchema,
