@@ -11,7 +11,7 @@ const current_companiesSchema = mongoose.Schema({
 
 //sous document detail_top_statusSchema,
 const detail_top_statusSchema = mongoose.Schema({
-    status_number: Number,
+    status_priority: Number,
     status_name: String,
     percentage: Number,
     companies_per_year: Array

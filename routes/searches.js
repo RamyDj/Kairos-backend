@@ -143,16 +143,10 @@ router.get('/newSearch/:city/:nafCode', (req, res)=>{
       return allStatusCompanies.length
     }
 
-    // Création des sous-documents detail_top_status si trois statuts différents trouvés dans la recherche
+    // Création des sous-documents detail_top_status en fonction du nombre de status différents trouvés
 
-    // let detail_top_status
-
-    // if (sortedStatusAppearences.length === 3){
-
-    // }
-
-    const detail_top_status=[
-      { status_number : 1,
+    let detail_top_status=[
+      { status_priority : 1,
         status_name : sortedStatusAppearences[0].status,
         percentage : Math.round((sortedStatusAppearences[0].companiesNumber/totalCountOfCompanies)*100),
         companies_per_year :[
@@ -164,48 +158,89 @@ router.get('/newSearch/:city/:nafCode', (req, res)=>{
             number : getCompaniesNumber(sortedStatusAppearences[0].status, convertInPreviousYear(yearForSearches, 2))
           }
         ]
-      },
-      { status_number : 2,
-        status_name : sortedStatusAppearences[1].status,
-        percentage : Math.round((sortedStatusAppearences[1].companiesNumber/totalCountOfCompanies)*100),
-        companies_per_year :[
-          {actual_year : yearForSearches, number : sortedStatusAppearences[1].companiesNumber},
-          {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
-            number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 1))
-          },
-          {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
-            number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 2))
-          }
-        ]
-      },
-      { status_number : 3,
-        status_name : sortedStatusAppearences[2].status,
-        percentage : Math.round((sortedStatusAppearences[2].companiesNumber/totalCountOfCompanies)*100),
-        companies_per_year :[
-          {actual_year : yearForSearches, number : sortedStatusAppearences[2].companiesNumber},
-          {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
-            number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 1))
-          },
-          {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
-            number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 2))
-          }
-        ]
-      },
-    ]
+      },]
+
+    if (sortedStatusAppearences.length >= 2){
+      detail_top_status.push(
+        { status_priority : 2,
+          status_name : sortedStatusAppearences[1].status,
+          percentage : Math.round((sortedStatusAppearences[1].companiesNumber/totalCountOfCompanies)*100),
+          companies_per_year :[
+            {actual_year : yearForSearches, number : sortedStatusAppearences[1].companiesNumber},
+            {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
+              number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 1))
+            },
+            {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
+              number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 2))
+            }
+          ]
+        },
+      )
+    }
+
+    if (sortedStatusAppearences.length >= 3){
+      detail_top_status.push(
+        { status_priority : 3,
+          status_name : sortedStatusAppearences[2].status,
+          percentage : Math.round((sortedStatusAppearences[2].companiesNumber/totalCountOfCompanies)*100),
+          companies_per_year :[
+            {actual_year : yearForSearches, number : sortedStatusAppearences[2].companiesNumber},
+            {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
+              number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 1))
+            },
+            {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
+              number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 2))
+            }
+          ]
+        },
+      )
+    }
+
+    // const detail_top_status=[
+    //   { status_number : 1,
+    //     status_name : sortedStatusAppearences[0].status,
+    //     percentage : Math.round((sortedStatusAppearences[0].companiesNumber/totalCountOfCompanies)*100),
+    //     companies_per_year :[
+    //       {actual_year : yearForSearches, number : sortedStatusAppearences[0].companiesNumber},
+    //       {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
+    //         number : getCompaniesNumber(sortedStatusAppearences[0].status, convertInPreviousYear(yearForSearches, 1))
+    //       },
+    //       {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
+    //         number : getCompaniesNumber(sortedStatusAppearences[0].status, convertInPreviousYear(yearForSearches, 2))
+    //       }
+    //     ]
+    //   },
+    //   { status_number : 2,
+    //     status_name : sortedStatusAppearences[1].status,
+    //     percentage : Math.round((sortedStatusAppearences[1].companiesNumber/totalCountOfCompanies)*100),
+    //     companies_per_year :[
+    //       {actual_year : yearForSearches, number : sortedStatusAppearences[1].companiesNumber},
+    //       {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
+    //         number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 1))
+    //       },
+    //       {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
+    //         number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 2))
+    //       }
+    //     ]
+    //   },
+    //   { status_number : 3,
+    //     status_name : sortedStatusAppearences[2].status,
+    //     percentage : Math.round((sortedStatusAppearences[2].companiesNumber/totalCountOfCompanies)*100),
+    //     companies_per_year :[
+    //       {actual_year : yearForSearches, number : sortedStatusAppearences[2].companiesNumber},
+    //       {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
+    //         number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 1))
+    //       },
+    //       {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
+    //         number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 2))
+    //       }
+    //     ]
+    //   },
+    // ]
 
     // Conversion du code naf en String de sa description
 
     const activity = convertCodeApeToString(nafCode)
-    // const newSearch = {
-    //   activity,
-    //   area : city,
-    //   date,
-    //   current_companies,
-    //   top_status : detail_top_status,
-    //   score : Math.floor(Math.random()*101),
-    // }
-
-    // res.json({result : newSearch})
 
     const newSearch = new Search({
       activity,
