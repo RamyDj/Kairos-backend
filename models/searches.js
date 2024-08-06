@@ -2,10 +2,11 @@ const mongoose = require('mongoose');
 
 //sous document champs current_compagnies
 const current_compagniesSchema = mongoose.Schema({
+    name: String,
     status: String,
     creation_date: Date,
-    employees: Number,
-    coordinates: {Lon: String, Lat: String},
+    employees: String,
+    coordinates: {Object},
 })
 
 //sous document champs compagnies_per_year
@@ -16,7 +17,7 @@ const compagniesSchema = mongoose.Schema({
 
 //sous document detail_top_statusSchema,
 const detail_top_statusSchema = mongoose.Schema({
-    status_number: String,
+    status_number: Number,
     percentage: Number,
     quaterly_one: Number,
     quaterly_two: Number,

@@ -7,7 +7,7 @@ const userSchema = mongoose.Schema({
   password: String,
   skills: [String],
   last_connection: Date,
-  searches: {type: mongoose.Schema.Types.ObjectId, ref: 'searches'},
+  searches: [{type: mongoose.Schema.Types.ObjectId, ref: 'searches'}],
   
 });
 
