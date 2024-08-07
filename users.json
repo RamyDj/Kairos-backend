@@ -1,0 +1,13 @@
+[
+    {"name": "Doe", "firstname": "John", "email": "john.doe@example.com", "password": "password1", "skills": [ "Coupe de cheveux","Coloration et meches","Techniques de coiffage"], "last_connection": "2024-08-01"},
+    {"name": "Smith", "firstname": "Jane", "email": "jane.smith@example.com", "password": "password2", "skills": ["Conseil en image","Soins capillaires","Extensions de cheveux", "Techniques de balayage"], "last_connection": "2024-07-25"},
+    {"name": "Brown", "firstname": "Emily", "email": "emily.brown@example.com", "password": "password3", "skills": ["Permanente et defrisage", "Barbier", "Styling de cheveux", "Traitements de cuir chevelu"], "last_connection": "2024-07-30"},
+    {"name": "Johnson", "firstname": "Michael", "email": "michael.j@example.com", "password": "password4", "skills": ["Traitements de cuir chevelu", "Utilisation des outils de coiffure", "Techniques de tressage"], "last_connection": "2024-07-28"},
+    {"name": "Williams", "firstname": "Emma", "email": "emma.w@example.com", "password": "password5", "skills": ["Utilisation des outils de coiffure", "Techniques de tressage", "Gestion de salon", "Service clientèle"], "last_connection": "2024-08-03"}
+]
+
+
+
+    
+     
+    
