@@ -25,11 +25,23 @@ router.get('/newSearch/:city/:nafCode', (req, res)=>{
   .then(response=>response.json())
   .then(data=> {
 
+    // Réponse si aucune entreprise trouvée
+
+    if (data.header.statut == 404){
+      res.json({result : "Aucune entreprise trouvée pour ce type d'activité dans ce secteur."});
+      return
+    }
+
     // Tri des datas pour ne garder que les établissements encore ouverts
 
     const actualOpenCompanies = data.etablissements.filter(e=> e.periodesEtablissement[0].etatAdministratifEtablissement !== "F")
 
+    // Réponse si aucun établissement encore ouvert
 
+    if (actualOpenCompanies.length == 0){
+      res.json({result : "Aucune entreprise trouvée pour ce type d'activité dans ce secteur."});
+      return
+    }
 
     // Création du sous document current_companies
 
@@ -196,55 +208,27 @@ router.get('/newSearch/:city/:nafCode', (req, res)=>{
       )
     }
 
-    // const detail_top_status=[
-    //   { status_number : 1,
-    //     status_name : sortedStatusAppearences[0].status,
-    //     percentage : Math.round((sortedStatusAppearences[0].companiesNumber/totalCountOfCompanies)*100),
-    //     companies_per_year :[
-    //       {actual_year : yearForSearches, number : sortedStatusAppearences[0].companiesNumber},
-    //       {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
-    //         number : getCompaniesNumber(sortedStatusAppearences[0].status, convertInPreviousYear(yearForSearches, 1))
-    //       },
-    //       {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
-    //         number : getCompaniesNumber(sortedStatusAppearences[0].status, convertInPreviousYear(yearForSearches, 2))
-    //       }
-    //     ]
-    //   },
-    //   { status_number : 2,
-    //     status_name : sortedStatusAppearences[1].status,
-    //     percentage : Math.round((sortedStatusAppearences[1].companiesNumber/totalCountOfCompanies)*100),
-    //     companies_per_year :[
-    //       {actual_year : yearForSearches, number : sortedStatusAppearences[1].companiesNumber},
-    //       {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
-    //         number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 1))
-    //       },
-    //       {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
-    //         number : getCompaniesNumber(sortedStatusAppearences[1].status, convertInPreviousYear(yearForSearches, 2))
-    //       }
-    //     ]
-    //   },
-    //   { status_number : 3,
-    //     status_name : sortedStatusAppearences[2].status,
-    //     percentage : Math.round((sortedStatusAppearences[2].companiesNumber/totalCountOfCompanies)*100),
-    //     companies_per_year :[
-    //       {actual_year : yearForSearches, number : sortedStatusAppearences[2].companiesNumber},
-    //       {year_n_minus_1 : convertInPreviousYear(yearForSearches, 1),
-    //         number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 1))
-    //       },
-    //       {year_n_minus_2 : convertInPreviousYear(yearForSearches, 2),
-    //         number : getCompaniesNumber(sortedStatusAppearences[2].status, convertInPreviousYear(yearForSearches, 2))
-    //       }
-    //     ]
-    //   },
-    // ]
-
     // Conversion du code naf en String de sa description
 
     const activity = convertCodeApeToString(nafCode)
 
+    // Mise au bon Format de la ville
+
+    let area = city.toLocaleLowerCase()
+
+    if (area.includes('-')){
+      area = area.split('-')
+      area = area.map(e=>{
+        return e= e[0].toUpperCase()+e.slice(1)})
+      area =area.join('-')
+    }else {
+      const firstLetter = area[0].toUpperCase()
+      area = firstLetter+area.slice(1)
+    }
+
     const newSearch = new Search({
       activity,
-      area : city,
+      area,
       date,
       current_companies,
       top_status : detail_top_status,
