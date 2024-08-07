@@ -1,24 +1,24 @@
 const mongoose = require('mongoose');
 
-//sous document champs current_compagnies
-const current_compagniesSchema = mongoose.Schema({
+//sous document champs current_companies
+const current_companiesSchema = mongoose.Schema({
     name: String,
     status: String,
-    creation_date: Date,
+    creation_date: String,
     employees: String,
-    coordinates: { Object },
+    // coordinates: Object,
 })
 
 //sous document detail_top_statusSchema,
 const detail_top_statusSchema = mongoose.Schema({
-    status_number: Number,
+    status_priority: Number,
     status_name: String,
     percentage: Number,
-    compagnies_per_year: [
-        { actual_year: String, number: Number },
-        { year_n_minus_1: String, number: Number },
-        { year_n_minus_2: String, number: Number }
-    ],
+    companies_per_year: Array
+        // { actual_year: String, number: Number },
+        // { year_n_minus_1: String, number: Number },
+        // { year_n_minus_2: String, number: Number }
+    ,
 })
 
 ////clé étrangère de la collection users champs searches
@@ -26,9 +26,9 @@ const searchSchema = mongoose.Schema({
     activity: String,
     area: String,
     date: Date,
-    current_compagnies: current_compagniesSchema,
+    current_companies: [current_companiesSchema],
     top_status: [detail_top_statusSchema],
-    score: { type: mongoose.Schema.Types.ObjectId, ref: 'score' },
+    score: Number,
     status_general: [{ type: mongoose.Schema.Types.ObjectId, ref: 'status_infos' }],
 });
 
