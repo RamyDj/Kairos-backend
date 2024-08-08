@@ -71,9 +71,20 @@ router.put('/dt', (req, res) => {
 router.put('/status', (req, res) => {
     Status_infos.updateOne({ _id: req.body._id }, { status_id: req.body.status_id })
         .then(() => {
-            Status_infos.find().then(data => {
-                res.json({ result: true, newkeys: data })
-            })
+            Status_infos.find()
+                .populate('status_id')
+                .then(data => {
+                    res.json({ result: true, status: data })
+                })
+        })
+})
+
+//afficher les status_infos et leurs status
+router.get('/status', (req, res) => {
+    Status_infos.find()
+        .populate('status_id')
+        .then(data => {
+            res.json({ result: true, status: data })
         })
 })
 
@@ -88,7 +99,7 @@ router.get('/foreignkey', (req, res) => {
 
 // afficher lbelement
 router.put('/libelle', (req, res) => {
-    Lbelement.updateOne({ _id: req.body._id },  {$push: { status_code: req.body.status_code }} )
+    Lbelement.updateOne({ _id: req.body._id }, { $push: { status_code: req.body.status_code } })
 
         .then(() => {
             Lbelement.find().then(data => {
@@ -97,7 +108,7 @@ router.put('/libelle', (req, res) => {
         })
 
 })
-//console.log(newArray)
+
 
 
 
