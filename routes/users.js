@@ -150,7 +150,6 @@ router.get('/confirmation/:token', (req, res) => {
       else {
         res.json({result: false, error: 'Email not verified'})
       } 
-      res.json({result: 'test', data})
     })
     
   })
