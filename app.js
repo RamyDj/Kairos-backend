@@ -11,6 +11,8 @@ const searchesRouter = require('./routes/searches');
 const session = require('express-session');
 const passport = require('./config/auth');
 
+const statusRouter = require('./routes/status');
+
 var app = express();
 
 const cors = require('cors');
@@ -28,5 +30,6 @@ app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/searches', searchesRouter);
+app.use('/status', statusRouter);
 
 module.exports = app;
