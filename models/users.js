@@ -5,6 +5,7 @@ const userSchema = mongoose.Schema({
   firstname: String,
   email: String,
   password: String,
+  token:String,
   skills: [String],
   last_connection: Date,
   searches: [{type: mongoose.Schema.Types.ObjectId, ref: 'searches'}],
