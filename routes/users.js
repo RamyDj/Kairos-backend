@@ -6,6 +6,7 @@ const passport = require('../config/auth');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
+
 require('../models/connection');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
@@ -186,12 +187,42 @@ router.post('/signin', (req, res) => {
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-router.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: `${urlFront}/` }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect(`${urlFront}/dashboard`);
-  });
+router.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/' }),
+    (req, res) => {
+      if (req.user) {
+        const token = jwt.sign(
+          { id: req.user._id, name: req.user.name, email: req.user.email },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' }
+        );
+
+        // Rediriger vers une page frontend (comme /google) avec le token dans le cookie
+        res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 3600000 });
+        res.redirect('http://localhost:3001/google'); // Rediriger vers le frontend après auth
+      } else {
+        res.status(401).json({ error: 'Authentication failed' });
+      }
+    });
+
+// ROUTE POUR OBTENIR LES INFOS USER
+router.get('/api/me', (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    return res.status(401).json({ error: 'No token found' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({
+      token,
+      name: decoded.name,
+      email: decoded.email
+    });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 
 // ROUTE DELETE USER ACCOUNT
 router.delete('/', (req, res) => {
@@ -200,8 +231,6 @@ router.delete('/', (req, res) => {
     data.deletedCount > 0 ? res.json({result: true}) : res.json({result: false, error: 'User not found'})
   })
 })
-
-
 
 // ROUTE UPDATE USER NAME/FIRSTNAME/PASSWORD
 router.put('/update-user', (req, res) => {
