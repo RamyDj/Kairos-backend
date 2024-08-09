@@ -17,9 +17,6 @@ const urlFront = process.env.URL_FRONT  //3001
 const urlBack = process.env.URL_BACK  //3000
 const emailSecret = process.env.EMAIL_SECRET
 
-
-
-
 // ROUTE SIGNUP AVEC VERIFICATION MAIL
 router.post('/signup', (req, res) => {
 	if (!checkBody(req.body, ['email', 'password'])) {
@@ -143,7 +140,7 @@ router.get('/confirmation/:token', (req, res) => {
     .then(data => {
       console.log(data)
       if (data.verified === true) {
-      res.redirect(`${urlFront}/mailconfirm`)
+      res.redirect(`${urlFront}/mail-confirm`)
       /* const token = uid2(32);
       res.json({result: true, user: data, token}) */
       }
@@ -161,35 +158,6 @@ router.get('/token', (req, res) => {
   const token = uid2(32);
   res.json({result: true, token})
 })
-
-// ROUTE SIGNUP AVANT VALIDATION EMAIL
-/* router.post('/signup', (req, res) => {
-	if (!checkBody(req.body, ['email', 'password'])) {
-    res.json({ result: false, error: 'Missing or empty fields' });
-    return;
-  }
-
-  // Check if the user has not already been registered
-  User.findOne({ email: req.body.email }).then(data => {
-    if (data === null) {
-      const token = uid2(32);
-      const hash = bcrypt.hashSync(req.body.password, 1);
-      const newUser = new User({
-        firstname: req.body.firstname,
-        name: req.body.name,
-        email: req.body.email,
-        password: hash,
-      });
-
-      newUser.save().then(data => {
-        res.json({ result: true, user: data, token});
-      });
-    } else {
-      // User already exists in database
-      res.json({ result: false, error: 'User already exists' });
-    }
-  });
-}); */
 
 // ROUTE SIGNIN
 router.post('/signin', (req, res) => {
@@ -219,12 +187,42 @@ router.post('/signin', (req, res) => {
 router.get('/auth/google',
   passport.authenticate('google', { scope: ['profile', 'email'] }));
 
-router.get('/auth/google/callback', 
-  passport.authenticate('google', { failureRedirect: `${urlFront}/` }),
-  function(req, res) {
-    // Successful authentication, redirect home.
-    res.redirect(`${urlFront}/dashboard`);
-  });
+router.get('/auth/google/callback',
+    passport.authenticate('google', { failureRedirect: '/' }),
+    (req, res) => {
+      if (req.user) {
+        const token = jwt.sign(
+          { id: req.user._id, name: req.user.name, email: req.user.email },
+          process.env.JWT_SECRET,
+          { expiresIn: '1h' }
+        );
+
+        // Rediriger vers une page frontend (comme /google) avec le token dans le cookie
+        res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 3600000 });
+        res.redirect('http://localhost:3001/google'); // Rediriger vers le frontend après auth
+      } else {
+        res.status(401).json({ error: 'Authentication failed' });
+      }
+    });
+
+// ROUTE POUR OBTENIR LES INFOS USER
+router.get('/api/me', (req, res) => {
+  const token = req.cookies.jwt;
+  if (!token) {
+    return res.status(401).json({ error: 'No token found' });
+  }
+
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    res.json({
+      token,
+      name: decoded.name,
+      email: decoded.email
+    });
+  } catch (error) {
+    res.status(401).json({ error: 'Invalid token' });
+  }
+});
 
 // ROUTE DELETE USER ACCOUNT
 router.delete('/', (req, res) => {
@@ -234,159 +232,127 @@ router.delete('/', (req, res) => {
   })
 })
 
-// ROUTE CHANGE PASSWORD
-router.put('/password', (req, res) => {
+// ROUTE UPDATE USER NAME/FIRSTNAME/PASSWORD
+router.put('/update-user', (req, res) => {
   User.findOne({email: req.body.email})
   .then(data => {
-    if (data && bcrypt.compareSync(req.body.oldPassword, data.password)) {
-      const hash = bcrypt.hashSync(req.body.newPassword, 1);
-      User.updateOne({email: req.body.email}, {password: hash})
-      .then(() => {
-        res.json({result: true})
-      })
-    }
-    else {
+    if (data) {
+      if(req.body.newPassword) {
+        if (data && bcrypt.compareSync(req.body.oldPassword, data.password)) {
+          const hash = bcrypt.hashSync(req.body.newPassword, 1);
+          User.updateOne({email: req.body.email}, {password: hash})
+          .then(() => {
+            res.json({result: true, message: 'Password updated successfully'})
+          })
+        } else {
+          res.json({result: false, error: 'Could not verify user'})
+        }
+      }
+
+      else if(req.body.name) {
+        User.updateOne({ email: req.body.email }, { name: req.body.name })
+        .then(() => {
+          res.json({result: true, message: 'Name updated successfully'})
+        })
+      }
+
+      else if(req.body.firstname) {
+        User.updateOne({ email: req.body.email }, { firstname: req.body.firstname })
+        .then(() => {
+          res.json({result: true, message: 'Firstname updated successfully'})
+        })
+      }
+    } else {
       res.json({result: false, error: 'Could not verify user'})
     }
   })
 })
 
-//ROUTE CHANGE NAME
-router.put('/name', (req,res) => {
-  User.findOne({email: req.body.email})
+
+//ROUTE UPDATE EMAIL AVEC VERIFICATION MAIL
+router.put('/update-email', (req,res) => {
+  User.findOne({email :req.body.newEmail})
   .then(data => {
-    if(data){   
-      User.updateOne(
-      { email: req.body.email },
-      { name: req.body.name }
-    )
-    .then(() => {
-      res.json({result: true})
-    })
-    }
-    else {
-    res.json({result: false, error: 'Could not verify user'})
-    }
-  })
-})
-//ROUTE CHANGE FIRSTNAME
-router.put('/firstname', (req,res) => {
-  User.findOne({email: req.body.email})
-  .then(data => {
-    if(data){   
-      User.updateOne(
-      { email: req.body.email },
-      { firstname: req.body.firstname }
-    )
-    .then(() => {
-      res.json({result: true})
-    })
-    }
-    else {
-    res.json({result: false, error: 'Could not verify user'})
-    }
-  })
-})
+    if(data) 
+      { res.json({result : false, message :"Email already used"})}
+    else{
+      User.updateOne({ email: req.body.email }, {email : req.body.newEmail, verified: false})
+        .then(data => {
+          if (data.modifiedCount === 0) {
+              res.json({result: false, message: "Update Fail"})
+          }
+          
+          // SETUP COMPTE ENVOI DES MAILS CONFIRMATION
+          const transporter = nodemailer.createTransport({
+          service: "Gmail",
+          host: "smtp.gmail.com",
+          port: 465,
+          secure: true,
+          auth: {
+            user: ourEmail,
+            pass: ourPassword,
+          },
+        });
+          // SETUP TOKEN A ENVOYER AU USER 
+          const emailToken = jwt.sign({userId: data._id}, emailSecret, { expiresIn: '1h' });
+          
+          // URL ROUTE GET POUR CONFIRMER MAIL
+          const url = `${urlBack}/users/new-email-confirmation/${emailToken}`;
 
-//ROUTE CHANGE EMAIL AVEC VERIFICATION MAIL
-router.put('/email', (req,res) => {
-  User.findOne({ email: req.body.email })
-    .then(data => {
-      if (!data) {
-        return res.json({ result: false, error: 'Could not verify user' });
-      }
-      
-      // SETUP COMPTE ENVOI DES MAILS CONFIRMATION
-      const transporter = nodemailer.createTransport({
-      service: "Gmail",
-      host: "smtp.gmail.com",
-      port: 465,
-      secure: true,
-      auth: {
-        user: ourEmail,
-        pass: ourPassword,
-      },
-    });
-      // SETUP TOKEN A ENVOYER AU USER 
-      const emailToken = jwt.sign({userId: data._id, newEmail:req.body.newEmail}, emailSecret, { expiresIn: '1h' });
-      
-      // URL ROUTE GET POUR CONFIRMER MAIL
-      const url = `${urlBack}/users/new-email-confirmation/${emailToken}`;
+          // MAIL ENVOYE
+          const mailOptions = {
+            from: ourEmail,
+            to: req.body.newEmail, //nouveau mail
+            subject: "KAIROS - Confirmation Modification d'email",
+            html: `
+              <body style="margin: 0; padding: 0;color:#163050;">
+                <div style="height: 50%; display: flex; flex-direction: column; margin: 0;padding: 5%;height: 100%;background: linear-gradient(to bottom, #F8E9A9, #ffffff)">
+                  <h1 style="font-family:Calibri; align-self: center; border-bottom: 1px solid #163050">
+                  Kairos
+                  </h1>
 
-      // MAIL ENVOYE
-      const mailOptions = {
-        from: ourEmail,
-        to: req.body.newEmail, //nouveau mail
-        subject: "KAIROS - Confirmation Email Change",
-        text: `Click the link to confirm : <a href=${url}> ${url} </a>`,
-      };
+                  <h2>Bonjour,</h2>
 
-      transporter.sendMail(mailOptions, (error, info) => {
-        if (error) {
-          console.error("Error sending email: ", error);
-        } else {
-          console.log("Email sent: ", info.response);
-        }
-    })
+                  <h4 style="font-family:Calibri;">
+                  Pour confirmer votre nouvelle adresse mail et accéder à tous nos services, merci de cliquer sur ce lien : <a href =${url}>confirmer votre adresse mail</a>
+                  </h4>
+
+                  <h5 style="font-family:Calibri;">
+                  À bientôt sur Kairos !
+                  </h5>
+                </div>
+              </body>`,
+          };
+
+          transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+              console.error("Error sending email: ", error);
+            } else {
+              console.log("Email sent: ", info.response);
+            }
+        })
+      })
+    }
   })
 })
 
 //ROUTE CONFIRMATION EMAIL POUR CHANGEMENT EMAIL
-router.get('/new-email-confirmation/:token', async (req, res) => {
+router.get('/new-email-confirmation/:token', (req, res) => {
 
   // Récupérer l'ID et le nouvel email du User avec jwt
   const user = jwt.verify(req.params.token, emailSecret);
   const userId = user.userId;
-  const newEmail = user.newEmail;
 
   //Modifier le champ verified du document User puis modifier email
-  const updatedUser = await User.updateOne({ _id: userId }, { verified: true })
-  
-    if (updatedUser.modifiedCount === 0) {
-      User.findById(userId).then(user => {
-        if (user) {
-          res.json({result: false, error: 'Email already verified'})
-        }
-      })
-    }else{
-      const user = await User.findById(userId);
-      if (user) {
-        const udpateEmail = await User.updateOne({ _id: userId }, { email: newEmail});
-
-        if (udpateEmail.modifiedCount !== 0) {
-            res.redirect(`${urlFront}/mailconfirm`)
-        }else{
-          res.json({ result: false, message: 'Email updated not successful' });
-        }
-        }
-    }
+  User.updateOne({ _id: userId }, { verified: true })
+  .then(data => {
+          if (data.modifiedCount === 0) {
+            User.findById(userId).then(user => {
+              user && res.json({result: false, error: 'Email already verified'})
+              })
+          }
+          res.redirect(`${urlFront}/new-mail-confirm`)
+  })
 })
-
-
-
-/* Fonction MaJ donnée User
-  const updateUser = (req, res, fieldToUpdate, newFieldValue) => {
-  User.findOne({ email: req.body.email })
-    .then(data => {
-      if (!data) {
-        return res.json({ result: false, error: 'Could not verify user' });
-      }
-      User.updateOne({ email: req.body.email }, { [fieldToUpdate]: newFieldValue })
-        .then(() => {
-          res.json({ result: true });
-        })
-    })
-  };
-
-  // Route MaJ du nom
-  router.put('/name', (req, res) => {
-    updateUser(req, res, 'name', req.body.name);
-  });
-
-  // Route MaJ du prénom
-  router.put('/firstname', (req, res) => {
-    updateUser(req, res, 'firstname', req.body.firstname);
-  });
-*/
 
 module.exports = router;
