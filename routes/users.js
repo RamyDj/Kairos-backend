@@ -5,6 +5,7 @@ const bcrypt = require('bcrypt');
 const passport = require('../config/auth');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
+const { JWT_SECRET } = process.env;
 
 
 require('../models/connection');
