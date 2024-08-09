@@ -10,7 +10,7 @@ passport.use(new GoogleStrategy({
   //redirection apres auth reussi
   callbackURL: 'http://localhost:3000/users/auth/google/callback'
 }, (accessToken, refreshToken, profile, done) => {
-  User.findOne({ googleId: profile.id })
+  User.findOne({ email: profile.emails[0].value })
   .then(user => {
     //connexion et ajout user dans bdd si pas encore
     if (user) {
