@@ -119,44 +119,27 @@ router.put('/link', async (req, res) => {
     userdoc.searches.push(req.body.searches)
 
     //créer la liaison avec la clé étrangère status_infos avec le document searches
-    const searchdoc = await Search.findById(req.body.searches)
-    for (let status of searchdoc.top_status) {
-        console.log(status)
-                //recherche de la  correspondance de l'intitulé de l'activité avec son code statut dans lbelement
-                const statusdata = await Lbelement.find({ status_name: status.status_name })
-                for (let name of statusdata) {
-                    console.log(name)
-                    //recherche du document du status détaillé en fonction de son code
-                    const infodata = await Status_infos.findOne({ status_code: name.status_code })
-                    if (!infodata) {
-                        break  
-                    }
-                    //console.log(infodata._id)
-                    //liaison du document status_infos avec la recherche
-                    await Search.updateOne({ _id: searched.searches[i]._id }, { $push: { status_general: infodata._id } })
+    const searched = await userdoc.populate('searches')
+    for (let i = 0; i < searched.searches.length; i++) {
+        for (let status of searched.searches[i].top_status) {
+            //recherche de la  correspondance de l'intitulé de l'activité avec son code statut dans lbelement
+            const statusdata = await Lbelement.find({ status_name: status.status_name })
+            for (let name of statusdata) {
+                //recherche du document du status détaillé en fonction de son code
+                const infodata = await Status_infos.findOne({ status_code: name.status_code })
+                if (!infodata) {
+                    break  
                 }
+                //console.log(infodata._id)
+                const data = await Search.findOne({ _id: searched.searches[i]._id })
+                if (data.status_general) {
+                    break
+                }
+                //liaison du document status_infos avec la recherche
+                await Search.updateOne({ _id: searched.searches[i]._id }, { $push: { status_general: infodata._id } })
             }
-    // const searched = await userdoc.populate('searches')
-    // for (let i = 0; i < searched.searches.length; i++) {
-    //     for (let status of searched.searches[i].top_status) {
-    //         //recherche de la  correspondance de l'intitulé de l'activité avec son code statut dans lbelement
-    //         const statusdata = await Lbelement.find({ status_name: status.status_name })
-    //         for (let name of statusdata) {
-    //             //recherche du document du status détaillé en fonction de son code
-    //             const infodata = await Status_infos.findOne({ status_code: name.status_code })
-    //             if (!infodata) {
-    //                 break  
-    //             }
-    //             //console.log(infodata._id)
-    //             const data = await Search.findOne({ _id: searched.searches[i]._id })
-    //             if (data.status_general) {
-    //                 break
-    //             }
-    //             //liaison du document status_infos avec la recherche
-    //             await Search.updateOne({ _id: searched.searches[i]._id }, { $push: { status_general: infodata._id } })
-    //         }
-    //     }
-    // }
+        }
+    }
     await userdoc.save()
     res.json({ result: true, data: userdoc })
 })
