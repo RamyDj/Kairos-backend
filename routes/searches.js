@@ -78,6 +78,9 @@ router.put('/newSearch', async (req, res) => {
 
     let name
 
+    //création d'un chiffre d'affaire
+    let ca = (Math.random() * 99 + 1).toFixed(2); 
+
     if (e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]") { name = e.uniteLegale.denominationUniteLegale }
     else { name = 'Non renseigné' }
 
@@ -87,6 +90,7 @@ router.put('/newSearch', async (req, res) => {
       creation_date: e.dateCreationEtablissement,
       employees,
       coordinates,
+      ca,
     }
     return e
   })
