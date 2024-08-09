@@ -16,9 +16,17 @@ const statusRouter = require('./routes/status');
 var app = express();
 
 const cors = require('cors');
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:3001',
+    credentials: true // Permet d'inclure les cookies dans les requêtes
+  }));
 
-app.use(session({ secret: 'oui', resave: false, saveUninitialized: true }));
+app.use(session({ secret: 'oui', resave: false, saveUninitialized: true,
+     cookie: {
+    secure: false, // Mettre à true en production si HTTPS est activé
+    httpOnly: true,
+    maxAge: 3600000 // Durée de vie du cookie en millisecondes (1 heure)
+  } }));
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(logger('dev'));
