@@ -7,6 +7,7 @@ const current_companiesSchema = mongoose.Schema({
     creation_date: String,
     employees: String,
     coordinates: Object,
+    ca: Number,
 })
 
 //sous document detail_top_statusSchema,
