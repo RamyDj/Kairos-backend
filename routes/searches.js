@@ -36,7 +36,7 @@ router.put('/newSearch', async (req, res) => {
 
   // Tri des datas pour ne garder que les établissements encore ouverts
 
-  const actualOpenCompanies = data.etablissements.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F")
+  const actualOpenCompanies = data.etablissements.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
 
   // Réponse si aucun établissement encore ouvert
 
@@ -76,13 +76,11 @@ router.put('/newSearch', async (req, res) => {
 
     employees = convertCodeEmployeesToString(e.uniteLegale.trancheEffectifsUniteLegale)
 
-    let name
+    let name = e.uniteLegale.denominationUniteLegale
 
     //création d'un chiffre d'affaire
     let ca = (Math.random() * 99 + 1).toFixed(2); 
 
-    if (e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]") { name = e.uniteLegale.denominationUniteLegale }
-    else { name = 'Non renseigné' }
 
     e = {
       name,
@@ -259,8 +257,8 @@ router.put('/newSearch', async (req, res) => {
 
   for (let e of codes) {
     const data = await Status_infos.findOne({ status_code: e })
-    status_general.push(data._id)
-  }
+    if(data) {status_general.push(data._id)
+  }}
 
 
   // Enregistrement d'une nouvelle recherche en bdd
@@ -274,6 +272,7 @@ router.put('/newSearch', async (req, res) => {
         current_companies,
         top_status: detail_top_status,
         score: Math.floor(Math.random() * 101),
+        status_general,
       }
     })
   }
@@ -296,8 +295,7 @@ router.put('/newSearch', async (req, res) => {
 
     const searchKey = await User.updateOne({email}, {$push:{searches : datas._id}})
 
-    console.log(searchKey)
-    res.json({ result: datas })
+    res.json({ result: datas, searchForeignKey : datas._id })
 
   }
 })
