@@ -237,15 +237,19 @@ router.post('/info-user', (req,res) => {
 })
 
 
-// ROUTE DELETE USER ACCOUNT
+// ROUTE DELETE USER ACCOUNT 
 router.delete('/', (req, res) => {
-  User.deleteOne({email: req.body.email})
+  User.deleteOne({token: req.body.token})
   .then((data) => {
-    data.deletedCount > 0 ? res.json({result: true}) : res.json({result: false, error: 'User not found'})
+    if(data.deletedCount > 0) {
+      res.json({result: true});
+    } else {
+        res.json({result: false, error: 'Utilisateur non trouvé'});
+    }
   })
 })
 
-// ROUTE UPDATE USER NAME/FIRSTNAME/PASSWORD
+// ROUTE UPDATE USER NAME/FIRSTNAME/PASSWORD => modif via token
 router.put('/update-user', (req, res) => {
   User.findOne({email: req.body.email})
   .then(data => {
@@ -282,7 +286,7 @@ router.put('/update-user', (req, res) => {
 })
 
 
-//ROUTE UPDATE EMAIL AVEC VERIFICATION MAIL
+//ROUTE UPDATE EMAIL AVEC VERIFICATION MAIL => modif via token 
 router.put('/update-email', (req,res) => {
   User.findOne({email : req.body.newEmail})
   .then(data => {
