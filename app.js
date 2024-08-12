@@ -12,6 +12,7 @@ const session = require('express-session');
 const passport = require('./config/auth');
 
 const statusRouter = require('./routes/status');
+const resultsRouter = require('./routes/results')
 
 var app = express();
 
@@ -39,5 +40,6 @@ app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/searches', searchesRouter);
 app.use('/status', statusRouter);
+app.use('/results', resultsRouter)
 
 module.exports = app;
