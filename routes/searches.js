@@ -34,9 +34,18 @@ router.put('/newSearch', async (req, res) => {
     return
   }
 
+  // Tri pour garder les établissements situés dans la ville exact cherchée
+
+  const cityWithSpaces = city.replace(/-/g, ' ').toUpperCase()
+  const cityInUpperCase = city.toUpperCase()
+  
+  const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement == cityInUpperCase || cityWithSpaces)
+  
+  // const CompaniesInTheExactCity
+
   // Tri des datas pour ne garder que les établissements encore ouverts
 
-  const actualOpenCompanies = data.etablissements.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
+  const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
 
   // Réponse si aucun établissement encore ouvert
 
