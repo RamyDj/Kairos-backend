@@ -34,9 +34,18 @@ router.put('/newSearch', async (req, res) => {
     return
   }
 
+  // Tri pour garder les établissements situés dans la ville exact cherchée
+
+  const cityWithSpaces = city.replace(/-/g, ' ').toUpperCase()
+  const cityInUpperCase = city.toUpperCase()
+  
+  const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
+  
+  // const CompaniesInTheExactCity
+
   // Tri des datas pour ne garder que les établissements encore ouverts
 
-  const actualOpenCompanies = data.etablissements.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
+  const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
 
   // Réponse si aucun établissement encore ouvert
 
@@ -44,6 +53,11 @@ router.put('/newSearch', async (req, res) => {
     res.json({ result: "Aucune entreprise trouvée pour ce type d'activité dans ce secteur." });
     return
   }
+
+    // Création de la date de la recherche et mise en forme pour recherches
+
+    const date = new Date()
+    const yearForSearches = moment(date).format("YYYY")
 
   // Création du sous document current_companies
 
@@ -78,9 +92,21 @@ router.put('/newSearch', async (req, res) => {
 
     let name = e.uniteLegale.denominationUniteLegale
 
-    //création d'un chiffre d'affaire
+    //création de plusieurs chiffres d'affaire
     let ca = (Math.random() * 99 + 1).toFixed(2); 
+    let ca2 = (Math.random() * 99 + 1).toFixed(2); 
+    let ca3 = (Math.random() * 99 + 1).toFixed(2); 
 
+    const ca_per_year =[
+      {actual_year : yearForSearches,
+      ca,},
+      {year_n_minus_1: convertInPreviousYear(yearForSearches, 1),
+        ca : ca2,
+      },
+      {year_n_minus_2: convertInPreviousYear(yearForSearches, 2),
+        ca : ca3,
+      }
+    ]
 
     e = {
       name,
@@ -88,7 +114,7 @@ router.put('/newSearch', async (req, res) => {
       creation_date: e.dateCreationEtablissement,
       employees,
       coordinates,
-      ca,
+      ca_per_year,
     }
     return e
   })
@@ -129,11 +155,6 @@ router.put('/newSearch', async (req, res) => {
   // Nombre total d'entreprises
 
   const totalCountOfCompanies = actualOpenCompanies.length
-
-  // Création de la date de la recherche et mise en forme pour recherches
-
-  const date = new Date()
-  const yearForSearches = moment(date).format("YYYY")
 
   // Création d'une fonction pour trouver le nombre d'entreprise par année
 
