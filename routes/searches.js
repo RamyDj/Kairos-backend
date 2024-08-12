@@ -272,6 +272,7 @@ router.put('/newSearch', async (req, res) => {
         current_companies,
         top_status: detail_top_status,
         score: Math.floor(Math.random() * 101),
+        status_general,
       }
     })
   }
