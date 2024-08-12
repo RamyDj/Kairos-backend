@@ -13,6 +13,7 @@ const passport = require('./config/auth');
 
 const statusRouter = require('./routes/status');
 const resultsRouter = require('./routes/results')
+const dashboardRouter = require('./routes/dashboard')
 
 var app = express();
 
@@ -41,5 +42,6 @@ app.use('/users', usersRouter);
 app.use('/searches', searchesRouter);
 app.use('/status', statusRouter);
 app.use('/results', resultsRouter)
+app.use('/dashboard', dashboardRouter)
 
 module.exports = app;
