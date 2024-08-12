@@ -6,7 +6,6 @@ const passport = require('../config/auth');
 const nodemailer = require('nodemailer');
 const jwt = require('jsonwebtoken');
 
-
 require('../models/connection');
 const User = require('../models/users');
 const { checkBody } = require('../modules/checkBody');
@@ -16,6 +15,7 @@ const ourPassword = process.env.EMAIL_PASSWORD
 const urlFront = process.env.URL_FRONT  //3001
 const urlBack = process.env.URL_BACK  //3000
 const emailSecret = process.env.EMAIL_SECRET
+const {JWT_SECRET} = process.env
 
 // ROUTE SIGNUP AVEC VERIFICATION MAIL
 router.post('/signup', (req, res) => {
@@ -138,26 +138,21 @@ router.get('/confirmation/:token', (req, res) => {
 
     User.findById(userId)
     .then(data => {
-      console.log(data)
       if (data.verified === true) {
-      res.redirect(`${urlFront}/mail-confirm`)
-      /* const token = uid2(32);
-      res.json({result: true, user: data, token}) */
-      }
+      const token = uid2(32);
+        User.updateOne({_id: userId},{token: token})
+        .then(
+        res.redirect(`${urlFront}/mail-confirm`)
+      )}
       else {
         res.json({result: false, error: 'Email not verified'})
-      } 
+        } 
     })
     
   })
   
 })
 
-// ROUTE CREATION TOKEN APRES CONFIRMATION MAIL
-router.get('/token', (req, res) => {
-  const token = uid2(32);
-  res.json({result: true, token})
-})
 
 // ROUTE SIGNIN
 router.post('/signin', (req, res) => {
@@ -224,6 +219,24 @@ router.get('/api/me', (req, res) => {
   }
 });
 
+//ROUTE INFO USER
+router.post('/info-user', (req,res) => {
+  User.findOne({email: req.body.email})
+  .then(data => {
+    if (data) {
+        if(req.body.token) {
+          res.json({ result: true, user: data })
+        }
+        else if(req.body.email){
+          res.json({ result: true, user: data.token })
+        }        
+    } else {
+      res.json({ result: false, message: "Utilisateur non trouvé" });
+    }
+  })
+})
+
+
 // ROUTE DELETE USER ACCOUNT
 router.delete('/', (req, res) => {
   User.deleteOne({email: req.body.email})
@@ -242,7 +255,7 @@ router.put('/update-user', (req, res) => {
           const hash = bcrypt.hashSync(req.body.newPassword, 1);
           User.updateOne({email: req.body.email}, {password: hash})
           .then(() => {
-            res.json({result: true, message: 'Password updated successfully'})
+            res.json({result: true, user : data, message: 'Password updated successfully'})
           })
         } else {
           res.json({result: false, error: 'Could not verify user'})
@@ -252,14 +265,14 @@ router.put('/update-user', (req, res) => {
       else if(req.body.name) {
         User.updateOne({ email: req.body.email }, { name: req.body.name })
         .then(() => {
-          res.json({result: true, message: 'Name updated successfully'})
+          res.json({result: true, user : data, message: 'Name updated successfully'})
         })
       }
 
       else if(req.body.firstname) {
         User.updateOne({ email: req.body.email }, { firstname: req.body.firstname })
         .then(() => {
-          res.json({result: true, message: 'Firstname updated successfully'})
+          res.json({result: true, user : data, message: 'Firstname updated successfully'})
         })
       }
     } else {
@@ -271,15 +284,17 @@ router.put('/update-user', (req, res) => {
 
 //ROUTE UPDATE EMAIL AVEC VERIFICATION MAIL
 router.put('/update-email', (req,res) => {
-  User.findOne({email :req.body.newEmail})
+  User.findOne({email : req.body.newEmail})
   .then(data => {
-    if(data) 
+    if(data !== null) 
       { res.json({result : false, message :"Email already used"})}
     else{
-      User.updateOne({ email: req.body.email }, {email : req.body.newEmail, verified: false})
+      User.updateOne({ email: req.body.email}, {email : req.body.newEmail, verified: false})
         .then(data => {
           if (data.modifiedCount === 0) {
               res.json({result: false, message: "Update Fail"})
+          }else{
+            res.json({result : true})
           }
           
           // SETUP COMPTE ENVOI DES MAILS CONFIRMATION
@@ -351,7 +366,7 @@ router.get('/new-email-confirmation/:token', (req, res) => {
               user && res.json({result: false, error: 'Email already verified'})
               })
           }
-          res.redirect(`${urlFront}/new-mail-confirm`)
+          res.redirect(`${urlFront}/dashboard`)
   })
 })
 
