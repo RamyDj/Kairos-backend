@@ -11,5 +11,21 @@ if (data){
 else {res.json({result : false})}
 })
 
+//ROUTE UPDATE SCORE SKILL USER
+router.put('/save-scores', (req,res) => {
+    User.findOne({ token : req.body.token})
+        .then(user => {
+            if (!user) {
+                return res.json({ result: false, message: 'Utilisateur non trouvé' });
+            }
+            User.updateOne(
+                { token: req.body.token },
+                { 'skills.legalScore': req.body.score.legal, 'skills.commerceScore': req.body.score.commerce } 
+            )
+            .then(() => {
+            res.json({ result: true, message: 'Scores mis à jour avec succès' });
+            })
+        })
+})
 
 module.exports = router
