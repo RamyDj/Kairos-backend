@@ -24,9 +24,4 @@ router.post('/registerSearch', async (req, res)=>{
 
 })
 
-router.get('/score', (req, res) => {
-    const allCA = req.body.CA;
-    
-})
-
 module.exports = router;
