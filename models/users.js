@@ -6,7 +6,9 @@ const userSchema = mongoose.Schema({
   email: { type: String, unique: true },
   password: String,
   token:String,
-  skills: [String],
+  skills: {
+    legalScore:  Number,
+    commerceScore: Number},
   last_connection: Date,
   searches: [{type: mongoose.Schema.Types.ObjectId, ref: 'searches'}],
   verified: Boolean,
