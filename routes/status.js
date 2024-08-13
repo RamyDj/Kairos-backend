@@ -95,14 +95,6 @@ router.put('/libelle', (req, res) => {
 
 })
 
-//afficher les status_infos et leurs status
-// router.get('/status', (req, res) => {
-//     Status_infos.find()
-//         .populate('status_id')
-//         .then(data => {
-//             res.json({ result: true, status: data })
-//         })
-// })
 //créer la liaison avec la clé etrangère searches en fonction de son id pour 1 user
 router.put('/link', async (req, res) => {
     //recherche de l'utilisateur
@@ -164,6 +156,10 @@ router.post('/status_infos', async (req, res) => {
 })
 
 
-
+//afficher les status-infos 
+router.get('/status',async (req, res) => {
+    const data = await Status_infos.find()
+    res.json({result: true, data: data})
+})
 
 module.exports = router;
