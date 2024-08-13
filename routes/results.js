@@ -4,10 +4,11 @@ const User=require('../models/users')
 const Search = require('../models/searches')
 
 router.post('/registerSearch', async (req, res)=>{
-    try {
+
     const {search, email} =req.body
 
     // Enregistrement de la recherche
+    console.log(search)
 
     const newSearch = new Search(search)
 
@@ -22,10 +23,8 @@ router.post('/registerSearch', async (req, res)=>{
     const allSearchesId =searches.map(e=>e=e._id)
 
     res.json({searches, allSearchesId})
-}
-catch (error) {
-    res.json({result :false})
-}
+
+
 })
 
 module.exports = router;
