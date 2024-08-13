@@ -95,14 +95,6 @@ router.put('/libelle', (req, res) => {
 
 })
 
-//afficher les status_infos et leurs status
-router.get('/status', (req, res) => {
-    Status_infos.find()
-        .populate('status_id')
-        .then(data => {
-            res.json({ result: true, status: data })
-        })
-})
 //créer la liaison avec la clé etrangère searches en fonction de son id pour 1 user
 router.put('/link', async (req, res) => {
     //recherche de l'utilisateur
@@ -128,7 +120,7 @@ router.put('/link', async (req, res) => {
                 //recherche du document du status détaillé en fonction de son code
                 const infodata = await Status_infos.findOne({ status_code: name.status_code })
                 if (!infodata) {
-                    break  
+                    break
                 }
                 //console.log(infodata._id)
                 const data = await Search.findOne({ _id: searched.searches[i]._id })
@@ -146,9 +138,28 @@ router.put('/link', async (req, res) => {
 
 
 //afficher les 3 status_infos et leur status en fonction du contenu de top status 
+router.post('/status_infos', async (req, res) => {
+    //console.log(req.body._ids)
+    const tab = []
+    for (let i = 0; i < 3; i++) {
+        let status_code = req.body._ids[i]
+        //console.log(status_code)
+        const statusData = await Status_infos.findById(status_code)
+        .populate('status_id')
+        .then(data => {
+            console.log(data)
+            tab.push(data)
+        }) 
+    }
+    console.log(tab)
+    res.json({ result: true, data: tab })
+})
 
 
-
-
+//afficher les status-infos 
+router.get('/status',async (req, res) => {
+    const data = await Status_infos.find()
+    res.json({result: true, data: data})
+})
 
 module.exports = router;
