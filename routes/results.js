@@ -5,13 +5,17 @@ const Search = require('../models/searches')
 const Score = require('../models/scores')
 
 router.post('/registerSearch', async (req, res)=>{
-    const {search, email} =req.body
+    const {search, email} = req.body
 
     // Enregistrement de la recherche
-    const scoreFromId = await Score.findOne({_id: search.score[0]._id})
+/*     const scoreFromId = await Score.findOne({_id: search.score[0]._id})
     const newScore = new Score(scoreFromId)
     const scoreSaved = await newScore.save()
-    const scoreId = scoreSaved._id;
+    const scoreId = scoreSaved._id; */
+
+    const newScore = new Score (search.score[0])
+    const scoreSaved = await newScore.save()
+    const scoreId = scoreSaved._id
 
     const newSearch = await new Search({
       activity: search.activity,
@@ -37,7 +41,7 @@ router.post('/registerSearch', async (req, res)=>{
     const allSearchesId = await searches.map(e=>e=e._id)
 
 
-    res.json({searches, allSearchesId, userData})
+    res.json({searches, allSearchesId})
 
 })
 
