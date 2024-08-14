@@ -44,7 +44,7 @@ router.put('/newSearch', async (req, res) => {
   const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
 
 
-  // Tri des datas pour ne garder que les établissements encore ouverts
+  // Tri des datas pour ne garder que les établissements encore ouverts ainsi qu'avec des coordonnés et un nom d'établissement
 
   const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
 
