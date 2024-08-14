@@ -14,7 +14,7 @@ const status_infosSchema = mongoose.Schema({
     taxation: String,
     turnover_max: String,
     salaries_max: String,
-    pocedures: String,
+    procedures: String,
     advantages: String,
     disadvantages: String,
     links: [String]

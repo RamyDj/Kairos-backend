@@ -2,15 +2,32 @@ var express = require('express');
 var router = express.Router();
 const User=require('../models/users')
 const Search = require('../models/searches')
+const Score = require('../models/scores')
 
 router.post('/registerSearch', async (req, res)=>{
     const {search, email} =req.body
-    const newSearch = new Search(search)
+
+    // Enregistrement de la recherche
+    const newScore = new Score(search.score)
+    const scoreSaved = await newScore.save()
+    const scoreId = scoreSaved._id;
+
+    const newSearch = new Search({
+      activity: search.activity,
+      area: search.area,
+      date: search.date,
+      current_companies: search.current_companies,
+      top_status: search.top_status,
+      score: scoreId,
+      status_general: search.status_general,
+    })
 
     const data = await newSearch.save()
 
+    // Inscription de son id dans le champs searches du user concerné
     await User.updateOne({email}, {$push:{searches : data._id}})
 
+    // Renvoie des datas nécessaires pour actualiser les reducers
     const userData = await User.findOne({email}).populate('searches')
     const searches = userData.searches
     const allSearchesId =searches.map(e=>e=e._id)
@@ -18,5 +35,6 @@ router.post('/registerSearch', async (req, res)=>{
     res.json({searches, allSearchesId})
 
 })
+
 
 module.exports = router;

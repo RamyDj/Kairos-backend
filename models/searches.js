@@ -7,7 +7,7 @@ const current_companiesSchema = mongoose.Schema({
     creation_date: String,
     employees: String,
     coordinates: Object,
-    ca: Number,
+    ca_per_year: Object,
 })
 
 //sous document detail_top_statusSchema,
@@ -29,7 +29,7 @@ const searchSchema = mongoose.Schema({
     date: Date,
     current_companies: [current_companiesSchema],
     top_status: [detail_top_statusSchema],
-    score: Number,
+    score: [{type: mongoose.Schema.Types.ObjectId, ref: 'scores'}],
     status_general: [{ type: mongoose.Schema.Types.ObjectId, ref: 'status_infos' }],
 });
 

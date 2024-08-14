@@ -4,8 +4,10 @@ var router = express.Router();
 const Search = require('../models/searches')
 const Status_infos = require('../models/status_infos')
 const User=require('../models/users')
+const Score = require('../models/scores')
 
 const lbElementsList = require('../datas/lbElementsList')
+const nbEntreprisesApe = require('../datas/nbEntreprisesCodeApe')
 
 const { toWGS, convertCodeStatusToString, convertCodeEmployeesToString, convertCodeApeToString, convertInPreviousYear, convertStatusStringToCode } = require('../modules/convertingFunctions')
 
@@ -40,6 +42,8 @@ router.put('/newSearch', async (req, res) => {
   const cityInUpperCase = city.toUpperCase()
   
   const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
+
+
   
   // const CompaniesInTheExactCity
 
@@ -53,6 +57,11 @@ router.put('/newSearch', async (req, res) => {
     res.json({ result: "Aucune entreprise trouvée pour ce type d'activité dans ce secteur." });
     return
   }
+
+    // Création de la date de la recherche et mise en forme pour recherches
+
+    const date = new Date()
+    const yearForSearches = moment(date).format("YYYY")
 
   // Création du sous document current_companies
 
@@ -87,9 +96,21 @@ router.put('/newSearch', async (req, res) => {
 
     let name = e.uniteLegale.denominationUniteLegale
 
-    //création d'un chiffre d'affaire
-    let ca = (Math.random() * 99 + 1).toFixed(2); 
+    //création de plusieurs chiffres d'affaire
+    let ca = Math.round((Math.random() * 99 + 1) * 100) / 100;
+    let ca2 = Math.round((Math.random() * 99 + 1) * 100) / 100;
+    let ca3 = Math.round((Math.random() * 99 + 1) * 100) / 100;
 
+    const ca_per_year =[
+      {actual_year : yearForSearches,
+      ca,},
+      {year_n_minus_1: convertInPreviousYear(yearForSearches, 1),
+        ca : ca2,
+      },
+      {year_n_minus_2: convertInPreviousYear(yearForSearches, 2),
+        ca : ca3,
+      }
+    ]
 
     e = {
       name,
@@ -97,7 +118,7 @@ router.put('/newSearch', async (req, res) => {
       creation_date: e.dateCreationEtablissement,
       employees,
       coordinates,
-      ca,
+      ca_per_year,
     }
     return e
   })
@@ -138,11 +159,6 @@ router.put('/newSearch', async (req, res) => {
   // Nombre total d'entreprises
 
   const totalCountOfCompanies = actualOpenCompanies.length
-
-  // Création de la date de la recherche et mise en forme pour recherches
-
-  const date = new Date()
-  const yearForSearches = moment(date).format("YYYY")
 
   // Création d'une fonction pour trouver le nombre d'entreprise par année
 
@@ -269,6 +285,92 @@ router.put('/newSearch', async (req, res) => {
     if(data) {status_general.push(data._id)
   }}
 
+// CALCUL SCORE
+
+// évolution CA : average_ca
+let startCA = 0;
+let endCA = 0;
+
+for (let company of current_companies) {
+  startCA = startCA + company.ca_per_year[2].ca;
+  endCA += company.ca_per_year[0].ca;
+};
+
+const startCaAverage = startCA / current_companies.length;
+const endCaAverage = endCA / current_companies.length;
+
+const ca_evolution = Math.round(((endCaAverage - startCaAverage) / startCaAverage * 100) * 100) / 100;
+
+let average_ca = Math.floor(((ca_evolution/10)+10) * 2);
+if (average_ca < 0) {
+  average_ca = 0;
+} else if (average_ca > 40) {
+  average_ca = 40
+}
+
+// durée de vie moyenne d'une entreprise : average_lifetime
+let averageLifetimeCalc;
+let totalLifetime = 0;
+
+
+for (let company of companiesInTheRigthCity) {
+  let endingYear;
+  const startYear = Number(company.dateCreationEtablissement.slice(0, 4));
+  if (company.uniteLegale.etatAdministratifUniteLegale === 'A') {
+    endingYear = Number(yearForSearches)
+  }
+  else (
+    endingYear = Number(company.periodesEtablissement[0].dateDebut.slice(0, 4))
+  );
+
+  totalLifetime = totalLifetime + (endingYear - startYear)
+}
+
+averageLifetimeCalc = totalLifetime / companiesInTheRigthCity.length;
+let average_lifetime = Math.floor(averageLifetimeCalc * 2);
+if (average_lifetime > 20) {
+  average_lifetime = 20;
+}
+
+// densité d'entreprises pour une ville : density_of_companies
+
+const resp = await fetch(`https://geo.api.gouv.fr/communes?nom=${city}&fields=code,nom,population&boost=population`);
+const answ = await resp.json();
+
+const population = answ[0].population;
+const density = population / current_companies.length;
+
+const allApeInfos = nbEntreprisesApe.results;
+
+const apeInfo = allApeInfos.find(e => e.code_ape.slice(0, 2) == nafCode.slice(0, 2) && e.code_ape.slice(2) === nafCode.slice(3) )
+
+
+const index = 68000000 / apeInfo.nombre_d_etablissements_2023;
+
+let density_of_companies = Math.floor((density * 10) / index);
+if (density_of_companies > 20) {
+  density_of_companies = 20
+};
+
+// ratio ouvertures/fermetures sur 3 ans : turnover
+
+const openedCompanies = companiesInTheRigthCity.filter(e => Number(e.dateCreationEtablissement.slice(0, 4)) >= Number(yearForSearches) );
+
+const closedCompanies = companiesInTheRigthCity.filter(e => e.uniteLegale.etatAdministratifUniteLegale === 'C' && Number(e.periodesEtablissement[0].dateDebut.slice(0, 4)) >= Number(yearForSearches));
+
+const ratio = Math.floor((openedCompanies.length - closedCompanies.length) *100 / current_companies.length);
+
+let turnover;
+if (ratio <= -20 || ratio >= 20) {
+  turnover = 0
+}
+else if (ratio === 0) {
+  turnover = 20
+}
+
+else (ratio < 0 ? turnover = 20 + ratio : turnover = 20 - ratio)
+
+const currentScore = {average_ca, average_lifetime, density_of_companies, turnover}
 
   // Enregistrement d'une nouvelle recherche en bdd
 
@@ -280,20 +382,23 @@ router.put('/newSearch', async (req, res) => {
         date,
         current_companies,
         top_status: detail_top_status,
-        score: Math.floor(Math.random() * 101),
+        score: currentScore,
         status_general,
       }
     })
   }
 
   else {
+    const newScore = new Score ({currentScore});
+    const savedScore = await newScore.save()
+
     const newSearch = new Search({
       activity,
       area,
       date,
       current_companies,
       top_status: detail_top_status,
-      score: Math.floor(Math.random() * 101),
+      score: savedScore._id,
       status_general,
     })
 
