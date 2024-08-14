@@ -3,7 +3,7 @@ var router = express.Router();
 const User=require('../models/users')
 
 router.post('/getSearches', async(req, res)=>{
-const data = await User.findOne({email : req.body.email}).populate('searches')
+const data = await User.findOne({email : req.body.email}).populate({path: 'searches', populate: {path: 'score'}});
 console.log(data)
 if (data){
     res.json({result : true, searches : data.searches})

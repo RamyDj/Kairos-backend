@@ -5,14 +5,19 @@ const Search = require('../models/searches')
 const Score = require('../models/scores')
 
 router.post('/registerSearch', async (req, res)=>{
-    const {search, email} =req.body
+    const {search, email} = req.body
 
     // Enregistrement de la recherche
-    const newScore = new Score(search.score)
+/*     const scoreFromId = await Score.findOne({_id: search.score[0]._id})
+    const newScore = new Score(scoreFromId)
     const scoreSaved = await newScore.save()
-    const scoreId = scoreSaved._id;
+    const scoreId = scoreSaved._id; */
 
-    const newSearch = new Search({
+    const newScore = new Score (search.score[0])
+    const scoreSaved = await newScore.save()
+    const scoreId = scoreSaved._id
+
+    const newSearch = await new Search({
       activity: search.activity,
       area: search.area,
       date: search.date,
@@ -22,15 +27,19 @@ router.post('/registerSearch', async (req, res)=>{
       status_general: search.status_general,
     })
 
+    console.log(newSearch, scoreSaved)
+
     const data = await newSearch.save()
 
     // Inscription de son id dans le champs searches du user concerné
-    await User.updateOne({email}, {$push:{searches : data._id}})
+    const updating = await User.updateOne({email}, {$push:{searches : data._id}})
 
     // Renvoie des datas nécessaires pour actualiser les reducers
-    const userData = await User.findOne({email}).populate('searches')
+    const userData = await User.findOne({email}).populate({path: 'searches', populate: {path:'score'} });
+    /* console.log(userData) */
     const searches = userData.searches
-    const allSearchesId =searches.map(e=>e=e._id)
+    const allSearchesId = await searches.map(e=>e=e._id)
+
 
     res.json({searches, allSearchesId})
 
