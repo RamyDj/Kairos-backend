@@ -21,7 +21,7 @@ router.put('/newSearch', async (req, res) => {
 
   const { city, nafCode, token, email } = req.body
 
-  const response = await fetch(`https://api.insee.fr/entreprises/sirene/V3.11/siret?q=activitePrincipaleUniteLegale:${nafCode} AND libelleCommuneEtablissement:${city}&nombre=10000`, {
+  const response = await fetch(`https://api.insee.fr/entreprises/sirene/V3.11/siret?q=activitePrincipaleUniteLegale:${nafCode} AND libelleCommuneEtablissement:${city}&nombre=1000`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -46,7 +46,7 @@ router.put('/newSearch', async (req, res) => {
 
   // Tri des datas pour ne garder que les établissements encore ouverts ainsi qu'avec des coordonnés et un nom d'établissement
 
-  const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
+  const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]" && e.adresseEtablissement.coordonneeLambertAbscisseEtablissement !== null && e.adresseEtablissement.coordonneeLambertAbscisseEtablissement !== "[ND]")
 
   // Réponse si aucun établissement encore ouvert
 
@@ -62,7 +62,7 @@ router.put('/newSearch', async (req, res) => {
 
   // Création du sous document current_companies
 
-  const current_companies = actualOpenCompanies.map(e => {
+  let current_companies = actualOpenCompanies.map(e => {
 
     // Création des coordinées si présentes, ou adresse, ou rien.
 
@@ -119,7 +119,10 @@ router.put('/newSearch', async (req, res) => {
     }
     return e
   })
-  // Sous document current_companies créé
+  // Sous document current_companies créé. Limitation de son nombre :
+  if (current_companies.length>250){
+    current_companies=current_companies.slice(0,250)
+  }
 
 
 
