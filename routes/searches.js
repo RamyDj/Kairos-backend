@@ -341,8 +341,16 @@ const allApeInfos = nbEntreprisesApe.results;
 
 const apeInfo = allApeInfos.find(e => e.code_ape.slice(0, 2) == nafCode.slice(0, 2) && e.code_ape.slice(2) === nafCode.slice(3) )
 
+let nbCompanies2023;
 
-const index = 68000000 / apeInfo.nombre_d_etablissements_2023;
+if (apeInfo === undefined || apeInfo.nombre_d_etablissements_2023 === 0) {
+  nbCompanies2023 = 1;
+}
+else {
+  nbCompanies2023 = apeInfo.nombre_d_etablissements_2023;
+}
+
+const index = 68000000 / nbCompanies2023;
 
 let density_of_companies = Math.floor((density * 10) / index);
 if (density_of_companies > 20) {
@@ -379,14 +387,14 @@ const currentScore = {average_ca, average_lifetime, density_of_companies, turnov
         date,
         current_companies,
         top_status: detail_top_status,
-        score: currentScore,
+        score: [currentScore],
         status_general,
       }
     })
   }
 
   else {
-    const newScore = new Score ({currentScore});
+    const newScore = new Score (currentScore);
     const savedScore = await newScore.save()
 
     const newSearch = new Search({
@@ -404,9 +412,13 @@ const currentScore = {average_ca, average_lifetime, density_of_companies, turnov
     
     const datas = await newSearch.save()
 
+    const returnedData = await Search.findOne({_id: datas._id}).populate('score');
+
     const searchKey = await User.updateOne({email}, {$push:{searches : datas._id}})
 
-    res.json({ result: datas, searchForeignKey : datas._id })
+  
+
+    res.json({ result: returnedData, searchForeignKey : datas._id })
 
   }
 })
