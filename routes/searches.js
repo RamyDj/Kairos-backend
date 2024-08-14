@@ -39,7 +39,7 @@ router.put('/newSearch', async (req, res) => {
   const cityWithSpaces = city.replace(/-/g, ' ').toUpperCase()
   const cityInUpperCase = city.toUpperCase()
   
-  const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement == cityInUpperCase || cityWithSpaces)
+  const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
   
   // const CompaniesInTheExactCity
 
