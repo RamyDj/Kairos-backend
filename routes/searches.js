@@ -36,16 +36,13 @@ router.put('/newSearch', async (req, res) => {
     return
   }
 
-  // Tri pour garder les établissements situés dans la ville exact cherchée
+  // Tri pour garder les établissements situés dans la ville exacte recherchée
 
   const cityWithSpaces = city.replace(/-/g, ' ').toUpperCase()
   const cityInUpperCase = city.toUpperCase()
   
   const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
 
-
-  
-  // const CompaniesInTheExactCity
 
   // Tri des datas pour ne garder que les établissements encore ouverts
 
