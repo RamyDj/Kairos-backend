@@ -2,15 +2,25 @@ var express = require('express');
 var router = express.Router();
 const User=require('../models/users')
 const Search = require('../models/searches')
+const Score = require('../models/scores')
 
 router.post('/registerSearch', async (req, res)=>{
-
     const {search, email} =req.body
 
     // Enregistrement de la recherche
-    console.log(search)
+    const newScore = new Score(search.score)
+    const scoreSaved = await newScore.save()
+    const scoreId = scoreSaved._id;
 
-    const newSearch = new Search(search)
+    const newSearch = new Search({
+      activity: search.activity,
+      area: search.area,
+      date: search.date,
+      current_companies: search.current_companies,
+      top_status: search.top_status,
+      score: scoreId,
+      status_general: search.status_general,
+    })
 
     const data = await newSearch.save()
 
@@ -24,7 +34,7 @@ router.post('/registerSearch', async (req, res)=>{
 
     res.json({searches, allSearchesId})
 
-
 })
+
 
 module.exports = router;

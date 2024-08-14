@@ -29,7 +29,7 @@ const searchSchema = mongoose.Schema({
     date: Date,
     current_companies: [current_companiesSchema],
     top_status: [detail_top_statusSchema],
-    score: Number,
+    score: [{type: mongoose.Schema.Types.ObjectId, ref: 'scores'}],
     status_general: [{ type: mongoose.Schema.Types.ObjectId, ref: 'status_infos' }],
 });
 
