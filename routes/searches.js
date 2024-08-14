@@ -344,8 +344,16 @@ const allApeInfos = nbEntreprisesApe.results;
 
 const apeInfo = allApeInfos.find(e => e.code_ape.slice(0, 2) == nafCode.slice(0, 2) && e.code_ape.slice(2) === nafCode.slice(3) )
 
+let nbCompanies2023;
 
-const index = 68000000 / apeInfo.nombre_d_etablissements_2023;
+if (apeInfo === undefined || apeInfo.nombre_d_etablissements_2023 === 0) {
+  nbCompanies2023 = 1;
+}
+else {
+  nbCompanies2023 = apeInfo.nombre_d_etablissements_2023;
+}
+
+const index = 68000000 / nbCompanies2023;
 
 let density_of_companies = Math.floor((density * 10) / index);
 if (density_of_companies > 20) {
