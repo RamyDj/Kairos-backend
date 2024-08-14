@@ -382,14 +382,14 @@ const currentScore = {average_ca, average_lifetime, density_of_companies, turnov
         date,
         current_companies,
         top_status: detail_top_status,
-        score: currentScore,
+        score: [currentScore],
         status_general,
       }
     })
   }
 
   else {
-    const newScore = new Score ({currentScore});
+    const newScore = new Score (currentScore);
     const savedScore = await newScore.save()
 
     const newSearch = new Search({
@@ -407,9 +407,13 @@ const currentScore = {average_ca, average_lifetime, density_of_companies, turnov
     
     const datas = await newSearch.save()
 
+    const returnedData = await Search.findOne({_id: datas._id}).populate('score');
+
     const searchKey = await User.updateOne({email}, {$push:{searches : datas._id}})
 
-    res.json({ result: datas, searchForeignKey : datas._id })
+  
+
+    res.json({ result: returnedData, searchForeignKey : datas._id })
 
   }
 })
