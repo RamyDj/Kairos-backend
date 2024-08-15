@@ -163,7 +163,7 @@ router.post('/signin', (req, res) => {
 
   User.findOne({ email: req.body.email})
   .then(data => {
-    if (data && bcrypt.compareSync(req.body.password, data.password)) {
+    if (data && bcrypt.compareSync(req.body.password, data.password) && data.verified) {
       const user = {
         firstname: data.firstname,
         name: data.name,
