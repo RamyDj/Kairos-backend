@@ -21,7 +21,7 @@ router.put('/newSearch', async (req, res) => {
 
   const { city, nafCode, token, email } = req.body
 
-  const response = await fetch(`https://api.insee.fr/entreprises/sirene/V3.11/siret?q=activitePrincipaleUniteLegale:${nafCode} AND libelleCommuneEtablissement:${city}&nombre=10000`, {
+  const response = await fetch(`https://api.insee.fr/entreprises/sirene/V3.11/siret?q=activitePrincipaleUniteLegale:${nafCode} AND libelleCommuneEtablissement:${city}&nombre=1000`, {
     method: 'GET',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
@@ -36,7 +36,7 @@ router.put('/newSearch', async (req, res) => {
     return
   }
 
-  // Tri pour garder les établissements situés dans la ville exact cherchée
+  // Tri pour garder les établissements situés dans la ville exacte recherchée
 
   const cityWithSpaces = city.replace(/-/g, ' ').toUpperCase()
   const cityInUpperCase = city.toUpperCase()
@@ -44,12 +44,9 @@ router.put('/newSearch', async (req, res) => {
   const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
 
 
-  
-  // const CompaniesInTheExactCity
+  // Tri des datas pour ne garder que les établissements encore ouverts ainsi qu'avec des coordonnés et un nom d'établissement
 
-  // Tri des datas pour ne garder que les établissements encore ouverts
-
-  const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]")
+  const actualOpenCompanies = companiesInTheRigthCity.filter(e => e.periodesEtablissement[0].etatAdministratifEtablissement !== "F" && e.uniteLegale.denominationUniteLegale !== null && e.uniteLegale.denominationUniteLegale !== "[ND]" && e.adresseEtablissement.coordonneeLambertAbscisseEtablissement !== null && e.adresseEtablissement.coordonneeLambertAbscisseEtablissement !== "[ND]")
 
   // Réponse si aucun établissement encore ouvert
 
@@ -65,7 +62,7 @@ router.put('/newSearch', async (req, res) => {
 
   // Création du sous document current_companies
 
-  const current_companies = actualOpenCompanies.map(e => {
+  let current_companies = actualOpenCompanies.map(e => {
 
     // Création des coordinées si présentes, ou adresse, ou rien.
 
@@ -122,7 +119,10 @@ router.put('/newSearch', async (req, res) => {
     }
     return e
   })
-  // Sous document current_companies créé
+  // Sous document current_companies créé. Limitation de son nombre :
+  if (current_companies.length>250){
+    current_companies=current_companies.slice(0,250)
+  }
 
 
 
@@ -344,8 +344,16 @@ const allApeInfos = nbEntreprisesApe.results;
 
 const apeInfo = allApeInfos.find(e => e.code_ape.slice(0, 2) == nafCode.slice(0, 2) && e.code_ape.slice(2) === nafCode.slice(3) )
 
+let nbCompanies2023;
 
-const index = 68000000 / apeInfo.nombre_d_etablissements_2023;
+if (apeInfo === undefined || apeInfo.nombre_d_etablissements_2023 === 0) {
+  nbCompanies2023 = 1;
+}
+else {
+  nbCompanies2023 = apeInfo.nombre_d_etablissements_2023;
+}
+
+const index = 68000000 / nbCompanies2023;
 
 let density_of_companies = Math.floor((density * 10) / index);
 if (density_of_companies > 20) {
@@ -382,14 +390,14 @@ const currentScore = {average_ca, average_lifetime, density_of_companies, turnov
         date,
         current_companies,
         top_status: detail_top_status,
-        score: currentScore,
+        score: [currentScore],
         status_general,
       }
     })
   }
 
   else {
-    const newScore = new Score ({currentScore});
+    const newScore = new Score (currentScore);
     const savedScore = await newScore.save()
 
     const newSearch = new Search({
@@ -407,9 +415,13 @@ const currentScore = {average_ca, average_lifetime, density_of_companies, turnov
     
     const datas = await newSearch.save()
 
+    const returnedData = await Search.findOne({_id: datas._id}).populate('score');
+
     const searchKey = await User.updateOne({email}, {$push:{searches : datas._id}})
 
-    res.json({ result: datas, searchForeignKey : datas._id })
+  
+
+    res.json({ result: returnedData, searchForeignKey : datas._id })
 
   }
 })

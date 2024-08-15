@@ -31,13 +31,13 @@ router.post('/user', (req, res) => {
 router.put('/user', (req, res) => {
 
     User.findOne({ name: req.body.name }).then(data => {
-        console.log(data.searches[0])
+        /* console.log(data.searches[0]) */
         if (data.searches.length < 3) {
-            console.log(data.searches.length)
+            /* console.log(data.searches.length) */
             User.updateOne({ name: req.body.name }, { searches: req.body.searches })
             res.json({ result: true, newkey: data })
         } else {
-            console.log(data.searches.length)
+            /* console.log(data.searches.length) */
             User.updateOne({ name: req.body.name }, { $pull: { searches: data.searches[0] }, $push: { searches: req.body.searches } })
 
             res.json({ result: true, newkey: data })
@@ -147,7 +147,7 @@ router.post('/status_infos', async (req, res) => {
         const statusData = await Status_infos.findById(status_code)
         .populate('status_id')
         .then(data => {
-            console.log(data)
+            /* console.log(data) */
             tab.push(data)
         }) 
     }

@@ -416,7 +416,7 @@ module.exports=[{
     },
     "status_name": "Société en nom collectif",
     "status_code": [
-      "NC"
+      "SNC"
     ],
     "__v": 0
   },
