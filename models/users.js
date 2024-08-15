@@ -7,8 +7,9 @@ const userSchema = mongoose.Schema({
   password: String,
   token:String,
   skills: [{
-    legalScore:  Number,
-    commerceScore: Number}],
+    legalScore: { type: Number, default: 0 }, 
+    commerceScore: { type: Number, default: 0 } 
+  }],
   last_connection: Date,
   searches: [{type: mongoose.Schema.Types.ObjectId, ref: 'searches'}],
   verified: Boolean,

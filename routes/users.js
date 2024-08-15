@@ -169,6 +169,7 @@ router.post('/signin', (req, res) => {
         name: data.name,
         email: data.email,
         token: data.token,
+        skills : data.skills,
       }
       res.json({ result: true, user });
     } else {
