@@ -19,7 +19,7 @@ const apiKey = process.env.SIRENE_API_KEY
 
 router.put('/newSearch', async (req, res) => {
 
-  const { city, nafCode, token, email } = req.body
+  const { city, nafCode, token, email, postcode } = req.body
 
   const response = await fetch(`https://api.insee.fr/entreprises/sirene/V3.11/siret?q=activitePrincipaleUniteLegale:${nafCode} AND libelleCommuneEtablissement:${city}&nombre=1000`, {
     method: 'GET',
@@ -41,8 +41,16 @@ router.put('/newSearch', async (req, res) => {
   const cityWithSpaces = city.replace(/-/g, ' ').toUpperCase()
   const cityInUpperCase = city.toUpperCase()
   
-  const companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
+  let companiesInTheRigthCity = data.etablissements.filter(e=> e.adresseEtablissement.libelleCommuneEtablissement === cityInUpperCase || cityWithSpaces)
 
+
+  // Si la ville est Paris, Marseille ou Lyon avec code postal d'arrondissement, tri pour ne garder que les établissements dans cet arrondissement.
+
+  if (postcode){
+    if (city== "Marseille" || city=="Paris" || city=="Lyon"){
+      companiesInTheRigthCity = companiesInTheRigthCity.filter(e=>e.adresseEtablissement.codePostalEtablissement==postcode)
+    }
+  }
 
   // Tri des datas pour ne garder que les établissements encore ouverts ainsi qu'avec des coordonnés et un nom d'établissement
 
