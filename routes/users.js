@@ -419,4 +419,13 @@ router.get('/new-email-confirmation/:token', (req, res) => {
   })
 })
 
+//route put pour updateOne user token google account
+router.put('/update', (req, res) => {
+  User.updateOne({email: req.body.email}, {token: req.body.token})
+  .then(data => {
+    console.log(data)
+    res.json({result: true})
+  })
+})
+
 module.exports = router;
