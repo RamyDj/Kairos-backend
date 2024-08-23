@@ -169,6 +169,7 @@ router.post('/signin', (req, res) => {
         name: data.name,
         email: data.email,
         token: data.token,
+        skills : data.skills,
       }
       res.json({ result: true, user });
     } else {
@@ -416,6 +417,15 @@ router.get('/new-email-confirmation/:token', (req, res) => {
               })
           }
           res.redirect(`${urlFront}/new-mail-confirm`)
+  })
+})
+
+//route put pour updateOne user token google account
+router.put('/update', (req, res) => {
+  User.updateOne({email: req.body.email}, {token: req.body.token})
+  .then(data => {
+    console.log(data)
+    res.json({result: true})
   })
 })
 
