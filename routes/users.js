@@ -27,7 +27,7 @@ router.post('/signup', (req, res) => {
   // Check if the user has not already been registered
   User.findOne({ email: req.body.email }).then(data => {
     if (data === null) {
-      const hash = bcrypt.hashSync(req.body.password, 1);
+      const hash = bcrypt.hashSync(req.body.password, 10);
       const newUser = new User({
         firstname: req.body.firstname,
         name: req.body.name,
@@ -98,34 +98,27 @@ router.post('/signup', (req, res) => {
     //   }
     // });
 
-    try {
-      transporter.sendMail(mailOptions, (error, info) => {
-        console.log('test');
-        if (error) {
-          console.error("Error sending email: ", error);
-        } else {
-          console.log("Email sent: ", info.response);
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        console.error("Error sending email: ", error);
+        res.status(500).json({ result: false, error: 'Failed to send confirmation email' });
+      } else {
+        console.log("Email sent: ", info.response);
+        const user = {
+          firstname: data.firstname,
+          name: data.name,
+          email: data.email,
+          skills: data.skills,
+          last_connection: data.last_connection,
+          searches: data.searches,
+          verified: false,
         }
-      });
-    } catch (err) {
-      console.error("Unexpected error: ", err);
-    }
-
-    const user = {
-      firstname: data.firstname,
-      name: data.name,
-      email: data.email,
-      skills: data.skills,
-      last_connection: data.last_connection,
-      searches: data.searches,
-      verified: false,
-    }
-
-        res.json({ result: true, user});
-      });
-    } 
     
-    else {
+            res.json({ result: true, user});
+      }
+    })
+  })
+    } else {
       // User already exists in database
       res.json({ result: false, error: 'User already exists' });
     }
