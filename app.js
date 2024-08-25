@@ -27,7 +27,7 @@ app.use(cors({
 
 app.use(session({ secret: 'oui', resave: false, saveUninitialized: true,
      cookie: {
-    secure: false, // Mettre à true en production si HTTPS est activé
+    secure: true, // Mettre à true en production si HTTPS est activé
     httpOnly: true,
     maxAge: 3600000 // Durée de vie du cookie en millisecondes (1 heure)
   } }));
