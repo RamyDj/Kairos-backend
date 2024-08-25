@@ -87,9 +87,8 @@ router.post('/signup', (req, res) => {
       </body>`,
     };
 
-    console.log(mailOptions)
   
-
+    console.log("Sending email to:", newUser.email);
     transporter.sendMail(mailOptions, (error, info) => {
       console.log('test')
       if (error) {
