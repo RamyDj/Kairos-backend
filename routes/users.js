@@ -52,15 +52,17 @@ router.post('/signup', (req, res) => {
           pass: ourPassword,
         },
       });
+      console.log(transporter)
 
         // SETUP TOKEN A ENVOYER AU USER
       const emailToken = jwt.sign({
         userId: data._id
     }, emailSecret, { expiresIn: '1h' });
 
+    console.log(emailToken)
     // URL ROUTE GET POUR CONFIRMER MAIL
     const url = `${urlBack}/users/confirmation/${emailToken}`
-
+    console.log(url)
     // MAIL ENVOYE
     const mailOptions = {
       from: ourEmail,
