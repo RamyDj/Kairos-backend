@@ -114,7 +114,7 @@ router.post('/signup', (req, res) => {
           verified: false,
         }
     
-            res.json({ result: true, user});
+        res.json({ result: true, user});
       }
     })
   })
@@ -352,58 +352,57 @@ router.put('/update-email', (req,res) => {
           if (data.modifiedCount === 0) {
               res.json({result: false, message: "Update Fail"})
           }else{
-            res.json({result : true})
+              // SETUP COMPTE ENVOI DES MAILS CONFIRMATION
+              const transporter = nodemailer.createTransport({
+              service: "Gmail",
+              host: "smtp.gmail.com",
+              port: 465,
+              secure: true,
+              auth: {
+                user: ourEmail,
+                pass: ourPassword,
+              },
+              });
+              // SETUP TOKEN A ENVOYER AU USER 
+              const emailToken = jwt.sign({userId: req.body.token}, emailSecret, { expiresIn: '1h' });
+              
+              // URL ROUTE GET POUR CONFIRMER MAIL
+              const url = `${urlBack}/users/new-email-confirmation/${emailToken}`;
+
+              // MAIL ENVOYE
+              const mailOptions = {
+                from: ourEmail,
+                to: req.body.email, //nouveau mail
+                subject: "KAIROS - Confirmation Modification d'email",
+                html: `
+                  <body style="margin: 0; padding: 0;color:#163050;">
+                    <div style="height: 50%; display: flex; flex-direction: column; margin: 0;padding: 5%;height: 100%;background: linear-gradient(to bottom, #F8E9A9, #ffffff)">
+                      <h1 style="font-family:Calibri; align-self: center; border-bottom: 1px solid #163050">
+                      Kairos
+                      </h1>
+
+                      <h2>Bonjour,</h2>
+
+                      <h4 style="font-family:Calibri;">
+                      Pour confirmer votre nouvelle adresse mail et accéder à tous nos services, merci de cliquer sur ce lien : <a href =${url}>confirmer votre adresse mail</a>
+                      </h4>
+
+                      <h5 style="font-family:Calibri;">
+                      À bientôt sur Kairos !
+                      </h5>
+                    </div>
+                  </body>`,
+              };
+
+              transporter.sendMail(mailOptions, (error, info) => {
+                if (error) {
+                  console.error("Error sending email: ", error);
+                } else {
+                  console.log("Email sent: ", info.response);
+                  res.json({result : true})
+                }
+            })
           }
-          
-          // SETUP COMPTE ENVOI DES MAILS CONFIRMATION
-          const transporter = nodemailer.createTransport({
-          service: "Gmail",
-          host: "smtp.gmail.com",
-          port: 465,
-          secure: true,
-          auth: {
-            user: ourEmail,
-            pass: ourPassword,
-          },
-        });
-          // SETUP TOKEN A ENVOYER AU USER 
-          const emailToken = jwt.sign({userId: req.body.token}, emailSecret, { expiresIn: '1h' });
-          
-          // URL ROUTE GET POUR CONFIRMER MAIL
-          const url = `${urlBack}/users/new-email-confirmation/${emailToken}`;
-
-          // MAIL ENVOYE
-          const mailOptions = {
-            from: ourEmail,
-            to: req.body.email, //nouveau mail
-            subject: "KAIROS - Confirmation Modification d'email",
-            html: `
-              <body style="margin: 0; padding: 0;color:#163050;">
-                <div style="height: 50%; display: flex; flex-direction: column; margin: 0;padding: 5%;height: 100%;background: linear-gradient(to bottom, #F8E9A9, #ffffff)">
-                  <h1 style="font-family:Calibri; align-self: center; border-bottom: 1px solid #163050">
-                  Kairos
-                  </h1>
-
-                  <h2>Bonjour,</h2>
-
-                  <h4 style="font-family:Calibri;">
-                  Pour confirmer votre nouvelle adresse mail et accéder à tous nos services, merci de cliquer sur ce lien : <a href =${url}>confirmer votre adresse mail</a>
-                  </h4>
-
-                  <h5 style="font-family:Calibri;">
-                  À bientôt sur Kairos !
-                  </h5>
-                </div>
-              </body>`,
-          };
-
-          transporter.sendMail(mailOptions, (error, info) => {
-            if (error) {
-              console.error("Error sending email: ", error);
-            } else {
-              console.log("Email sent: ", info.response);
-            }
-        })
       })
     }
   })
