@@ -20,6 +20,8 @@ var app = express();
 const cors = require('cors');
 app.use(cors({
     origin:  'https://kairos-frontend-six.vercel.app',
+    methods: 'GET,POST,PUT,DELETE', // méthodes HTTP autorisées
+    allowedHeaders: 'Content-Type,Authorization' // headers autorisés
     credentials: true // Permet d'inclure les cookies dans les requêtes
   }));
 
