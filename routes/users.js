@@ -52,7 +52,6 @@ router.post('/signup', (req, res) => {
           pass: ourPassword,
         },
       });
-      console.log(transporter)
 
         // SETUP TOKEN A ENVOYER AU USER
       const emailToken = jwt.sign({
@@ -87,9 +86,12 @@ router.post('/signup', (req, res) => {
         </div>
       </body>`,
     };
+
+    console.log(mailOptions)
   
 
     transporter.sendMail(mailOptions, (error, info) => {
+      console.log('test')
       if (error) {
         console.error("Error sending email: ", error);
       } else {
