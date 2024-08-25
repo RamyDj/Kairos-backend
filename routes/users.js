@@ -88,15 +88,28 @@ router.post('/signup', (req, res) => {
     };
 
   
-    console.log("Sending email to:", newUser.email);
-    transporter.sendMail(mailOptions, (error, info) => {
-      console.log('test')
-      if (error) {
-        console.error("Error sending email: ", error);
-      } else {
-        console.log("Email sent: ", info.response);
-      }
-    });
+    
+    // transporter.sendMail(mailOptions, (error, info) => {
+    //   console.log('test')
+    //   if (error) {
+    //     console.error("Error sending email: ", error);
+    //   } else {
+    //     console.log("Email sent: ", info.response);
+    //   }
+    // });
+
+    try {
+      transporter.sendMail(mailOptions, (error, info) => {
+        console.log('test');
+        if (error) {
+          console.error("Error sending email: ", error);
+        } else {
+          console.log("Email sent: ", info.response);
+        }
+      });
+    } catch (err) {
+      console.error("Unexpected error: ", err);
+    }
 
     const user = {
       firstname: data.firstname,
