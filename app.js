@@ -19,7 +19,7 @@ var app = express();
 
 const cors = require('cors');
 app.use(cors({
-    origin: 'http://localhost:3001',
+    origin: 'https://kairos-frontend-six.vercel.app',
     credentials: true // Permet d'inclure les cookies dans les requêtes
   }));
 
