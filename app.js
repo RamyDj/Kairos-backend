@@ -20,12 +20,14 @@ var app = express();
 const cors = require('cors');
 app.use(cors({
     origin:  'https://kairos-frontend-six.vercel.app',
+    methods: 'GET,POST,PUT,DELETE', // méthodes HTTP autorisées
+    allowedHeaders: 'Content-Type,Authorization', // headers autorisés
     credentials: true // Permet d'inclure les cookies dans les requêtes
   }));
 
 app.use(session({ secret: 'oui', resave: false, saveUninitialized: true,
      cookie: {
-    secure: false, // Mettre à true en production si HTTPS est activé
+    secure: true, // Mettre à true en production si HTTPS est activé
     httpOnly: true,
     maxAge: 3600000 // Durée de vie du cookie en millisecondes (1 heure)
   } }));
