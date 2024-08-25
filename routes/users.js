@@ -87,17 +87,6 @@ router.post('/signup', (req, res) => {
       </body>`,
     };
 
-  
-    
-    // transporter.sendMail(mailOptions, (error, info) => {
-    //   console.log('test')
-    //   if (error) {
-    //     console.error("Error sending email: ", error);
-    //   } else {
-    //     console.log("Email sent: ", info.response);
-    //   }
-    // });
-
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.error("Error sending email: ", error);
@@ -162,7 +151,6 @@ router.get('/confirmation/:token', (req, res) => {
   
 })
 
-
 // ROUTE SIGNIN
 router.post('/signin', (req, res) => {
   if (!checkBody(req.body, ['email', 'password'])) {
@@ -210,7 +198,7 @@ router.get('/auth/google/callback',
       }
     });
 
-// ROUTE POUR OBTENIR LES INFOS USER
+// ROUTE POUR OBTENIR LES INFOS USER POUR GOOGLE
 router.get('/api/me', (req, res) => {
   const token = req.cookies.jwt;
   if (!token) {
@@ -255,19 +243,6 @@ router.post('/info-user', (req, res) => {
     res.json({ result: false, message: "Token ou email manquant" })
   }
 });
-
-//ROUTE INFO USER
-// router.post('/info-user', (req,res) => {
-//   User.findOne({email: req.body.email})
-//   .then(data => {
-//     if (data !== null) {
-//           res.json({ result: true, user: data })        
-//     } else {
-//       res.json({ result: false, message: "Utilisateur non trouvé" });
-//     }
-//   })
-// })
-
 
 
 // ROUTE DELETE USER ACCOUNT 
