@@ -201,8 +201,9 @@ router.get('/auth/google/callback',
 // ROUTE POUR OBTENIR LES INFOS USER POUR GOOGLE
 router.get('/api/me', (req, res) => {
   const token = req.cookies.jwt;
-  console.log(jwt)
-  console.log(req)
+  console.log('jwt:', jwt)
+  console.log('token:', token)
+  
   if (!token) {
     return res.status(401).json({ error: 'No token found' });
   }
