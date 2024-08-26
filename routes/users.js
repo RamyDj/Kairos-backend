@@ -191,7 +191,7 @@ router.get('/auth/google/callback',
         );
 
         // Rediriger vers une page frontend (comme /google) avec le token dans le cookie
-        res.cookie('jwt', token, { sameSite: 'lax', httpOnly: true, secure: false, maxAge: 3600000, domain: '.vercel.app' });
+        res.cookie('jwt', token, { sameSite: 'none', httpOnly: false, secure: true, maxAge: 3600000, });
         res.redirect(`${urlFront}/google`); // Rediriger vers le frontend après auth
       } else {
         res.status(401).json({ error: 'Authentication failed' });
