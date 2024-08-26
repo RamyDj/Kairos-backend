@@ -24,6 +24,11 @@ app.use(cors({
     allowedHeaders: 'Content-Type,Authorization, ', // headers autorisés
     credentials: true // Permet d'inclure les cookies dans les requêtes
   }));
+app.use((req, res, next) => {
+  res.setHeader('Access-Control-Allow-Credentials', true);   
+  res.setHeader('Access-Control-Allow-Origin', 'https://kairos-frontend-six.vercel.app'); // your_frontend_domain, it's an example
+    next()
+ });
 app.use(cookieParser());
 app.use(session({ secret: 'oui', resave: false, saveUninitialized: true,
     cookie: {
