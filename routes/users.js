@@ -192,6 +192,7 @@ router.get('/auth/google/callback',
 
         // Rediriger vers une page frontend (comme /google) avec le token dans le cookie
         res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 3600000 });
+        console.log('token généré:', token)
         res.redirect(`${urlFront}/google`); // Rediriger vers le frontend après auth
       } else {
         res.status(401).json({ error: 'Authentication failed' });

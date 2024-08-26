@@ -26,7 +26,7 @@ app.use(cors({
   }));
 app.use((req, res, next) => {
   res.setHeader('Access-Control-Allow-Credentials', true);   
-  res.setHeader('Access-Control-Allow-Origin', 'kairos-backend.vercel.app'); // your_frontend_domain, it's an example
+  res.setHeader('Access-Control-Allow-Origin', 'https://kairos-frontend-six.vercel.app'); // your_frontend_domain, it's an example
     next()
  });
 app.use(cookieParser());
