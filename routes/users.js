@@ -191,7 +191,7 @@ router.get('/auth/google/callback',
         );
 
         // Rediriger vers une page frontend (comme /google) avec le token dans le cookie
-        res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 3600000 });
+        res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 3600000, domain: '.vercel.app' });
         console.log('token généré:', token)
         res.redirect(`${urlFront}/google`); // Rediriger vers le frontend après auth
       } else {
