@@ -24,21 +24,19 @@ app.use(cors({
     allowedHeaders: 'Content-Type,Authorization, ', // headers autorisés
     credentials: true // Permet d'inclure les cookies dans les requêtes
   }));
-
+app.use(cookieParser());
 app.use(session({ secret: 'oui', resave: false, saveUninitialized: true,
     cookie: {
     secure: true, // Mettre à true en production si HTTPS est activé
     httpOnly: true,
     maxAge: 3600000 // Durée de vie du cookie en millisecondes (1 heure)
   } }));
-app.use(cookieParser());
 app.use(passport.initialize());
 app.use(passport.session());
 app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
 app.use('/searches', searchesRouter);
