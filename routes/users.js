@@ -191,7 +191,7 @@ router.get('/auth/google/callback',
         );
 
         // Rediriger vers une page frontend (comme /google) avec le token dans le cookie
-        res.cookie('jwt', token, { httpOnly: true, secure: true, maxAge: 3600000 });
+        res.cookie('jwt', token, { sameSite: 'none', httpOnly: false, secure: true, maxAge: 3600000, });
         res.redirect(`${urlFront}/google`); // Rediriger vers le frontend après auth
       } else {
         res.status(401).json({ error: 'Authentication failed' });
@@ -201,6 +201,10 @@ router.get('/auth/google/callback',
 // ROUTE POUR OBTENIR LES INFOS USER POUR GOOGLE
 router.get('/api/me', (req, res) => {
   const token = req.cookies.jwt;
+  console.log('token:', token)
+  console.log('req.headers:', req.headers)
+  console.log('cookies:', req.cookies)
+  
   if (!token) {
     return res.status(401).json({ error: 'No token found' });
   }
