@@ -4,6 +4,7 @@ var router = express.Router();
 //import des models de Schéma
 require('../models/connection');
 const Status_infos = require('../models/status_infos');
+const Status = require('../models/status')
 
 //afficher les infos détaillées (status_infos) des 3 top_status d'une recheche
 router.post('/status_infos', async (req, res) => {
