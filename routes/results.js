@@ -27,7 +27,7 @@ router.post('/registerSearch', async (req, res)=>{
       status_general: search.status_general,
     })
 
-    console.log(newSearch, scoreSaved)
+    //console.log(newSearch, scoreSaved)
 
     const data = await newSearch.save()
 

@@ -96,7 +96,7 @@ router.put('/libelle', (req, res) => {
 })
 
 //créer la liaison avec la clé etrangère searches en fonction de son id pour 1 user
-router.put('/link', async (req, res) => {
+/* router.put('/link', async (req, res) => {
     //recherche de l'utilisateur
     const userdoc = await User.findOne({ email: req.body.email })
     if (!userdoc) {
@@ -134,7 +134,7 @@ router.put('/link', async (req, res) => {
     }
     await userdoc.save()
     res.json({ result: true, data: userdoc })
-})
+}) */
 
 
 //afficher les 3 status_infos et leur status en fonction du contenu de top status 
@@ -151,7 +151,7 @@ router.post('/status_infos', async (req, res) => {
             tab.push(data)
         }) 
     }
-    console.log(tab)
+    //console.log(tab)
     res.json({ result: true, data: tab })
 })
 
