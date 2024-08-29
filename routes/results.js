@@ -30,6 +30,7 @@ router.post('/registerSearch', async (req, res)=>{
     //console.log(newSearch, scoreSaved)
 
     const data = await newSearch.save()
+    console.log("data results.js newSearch:", data)
 
     // Inscription de son id dans le champs searches du user concerné
     const updating = await User.updateOne({email}, {$push:{searches : data._id}})
