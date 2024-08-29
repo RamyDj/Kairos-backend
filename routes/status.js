@@ -13,52 +13,49 @@ const lbelements = require('../codesJuridiquesEntreprises');
 
 
 // afficher l'utilisateur
-router.get('/user', (req, res) => {
+/* router.get('/user', (req, res) => {
     User.find().then(data => {
         res.json({ result: true, data: data });
     })
-});
+}); */
 
 //ajouter une recherche à l'utilisateur
-router.post('/user', (req, res) => {
+/* router.post('/user', (req, res) => {
     User.updateOne({ name: req.body.name }, { $push: { searches: req.body.searches } })
         .then((data) => {
             res.json({ result: true, newkey: data })
         })
-})
+}) */
 
 //mettre à jour l'id d'une recherche et effacer la première recherche si plus de 5
-router.put('/user', (req, res) => {
+/* router.put('/user', (req, res) => {
 
     User.findOne({ name: req.body.name }).then(data => {
-        /* console.log(data.searches[0]) */
         if (data.searches.length < 3) {
-            /* console.log(data.searches.length) */
             User.updateOne({ name: req.body.name }, { searches: req.body.searches })
             res.json({ result: true, newkey: data })
         } else {
-            /* console.log(data.searches.length) */
             User.updateOne({ name: req.body.name }, { $pull: { searches: data.searches[0] }, $push: { searches: req.body.searches } })
 
             res.json({ result: true, newkey: data })
         }
 
     })
-})
+}) */
 
 
 //mettre à jour l'id d'un statut_infos et de son score dans la collection research
-router.put('/data', (req, res) => {
+/* router.put('/data', (req, res) => {
     Search.updateOne({ _id: req.body._id }, { $set: { score: req.body.score, status_general: req.body.status_general } })
         .then(() => {
             Search.find().then(data => {
                 res.json({ result: true, newkeys: data })
             })
         })
-})
+}) */
 
 //mettre à jour statut_id dans la collection status_infos
-router.put('/status', (req, res) => {
+/* router.put('/status', (req, res) => {
     Status_infos.updateOne({ _id: req.body._id }, { status_id: req.body.status_id })
         .then(() => {
             Status_infos.find()
@@ -67,19 +64,19 @@ router.put('/status', (req, res) => {
                     res.json({ result: true, status: data })
                 })
         })
-})
+}) */
 
 // afficher les utilisateurs
-router.get('/foreignkey', (req, res) => {
+/* router.get('/foreignkey', (req, res) => {
     User.find()
         .populate('searches')
         .then(data => {
             res.json({ result: true, data: data });
         })
-});
+}); */
 
 // afficher lbelement
-router.put('/libelle', (req, res) => {
+/* router.put('/libelle', (req, res) => {
     Lbelement.updateOne({ _id: req.body._id }, { $push: { status_code: req.body.status_code } })
 
         .then(() => {
@@ -88,7 +85,7 @@ router.put('/libelle', (req, res) => {
             })
         })
 
-})
+}) */
 
 //créer la liaison avec la clé etrangère searches en fonction de son id pour 1 user
 /* router.put('/link', async (req, res) => {
