@@ -1,8 +1,10 @@
 var express = require('express');
 var router = express.Router();
+require('../models/connection');
 const User=require('../models/users')
 const Search = require('../models/searches')
 const Score = require('../models/scores')
+
 
 router.post('/registerSearch', async (req, res)=>{
     const {search, email} = req.body
