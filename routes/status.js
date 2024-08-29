@@ -7,9 +7,9 @@ const User = require('../models/users');
 const Search = require('../models/searches');
 const Score = require('../models/scores');
 const Status_infos = require('../models/status_infos');
-const Lbelement = require('../models/lbelements');
+/* const Lbelement = require('../models/lbelements'); */
 const Status = require('../models/status');
-const lbelements = require('../codesJuridiquesEntreprises');
+/* const lbelements = require('../codesJuridiquesEntreprises'); */
 
 
 // afficher l'utilisateur
@@ -129,7 +129,7 @@ const lbelements = require('../codesJuridiquesEntreprises');
 }) */
 
 
-//afficher les 3 status_infos et leur status en fonction du contenu de top status 
+//afficher les infos détaillées (status_infos) des 3 top_status d'une recheche
 router.post('/status_infos', async (req, res) => {
     //console.log(req.body._ids)
     const tab = []
